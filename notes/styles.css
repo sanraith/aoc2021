@@ -1,0 +1,57 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: #eceff1;
+}
+
+.calendar {
+    display: block;
+    user-select: none;
+    border: 1px dashed;
+    overflow: hidden;
+    width: fit-content;
+}
+
+.calendar .row {
+    float: left;
+}
+
+.calendar .col {
+    float: left;
+    width: 50px;
+    height: 50px;
+    display: table; /* for text vertical align */
+
+    margin: 10px;
+    border: 1px solid;
+}
+
+.calendar .col.gray {
+    background-color: gray;
+}
+
+.calendar .col span {
+    display: table-cell; /* for text vertical align */
+    text-align: center;
+    vertical-align: middle;
+}
+
+.popup {
+    position: absolute;
+    border: 1px solid red;
+    background-color: #eceff1;
+    z-index: 9999;
+    visibility: hidden;
+
+    -moz-transition: all 1s ease;
+    -webkit-transition: all 1s ease;
+    -o-transition: all 1s ease;
+    transition: all 1s ease;
+}
+
+.notransition {
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -o-transition: none !important;
+    transition: none !important;
+}
