@@ -1,5 +1,5 @@
 /**
- * 
+ * Turns off style transitions for the given element for the duration of the given func.
  * @param {HTMLElement} element 
  * @param {(element: HTMLElement) => void} func 
  */
@@ -40,6 +40,7 @@ function styleTransitionAsync(element, styleChanges, timeout = 5000) {
     });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function openPopup() {
     const dayBox = document.getElementById('8box');
     const dayPos = dayBox.getBoundingClientRect();
@@ -61,6 +62,7 @@ async function openPopup() {
     });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function closePopup() {
     const dayBox = document.getElementById('8box');
     const dayPos = dayBox.getBoundingClientRect();
