@@ -22,8 +22,11 @@
         "web-vitals": "^1.1.2"
     },
     "devDependencies": {
-        "react-scripts": "4.0.3",
-        "eslint": "^7.32.0"
+        "@typescript-eslint/eslint-plugin": "^5.2.0",
+        "@typescript-eslint/parser": "^5.2.0",
+        "eslint": "^7.32.0",
+        "eslint-plugin-react": "^7.26.1",
+        "react-scripts": "4.0.3"
     },
     "browserslist": {
         "production": [
