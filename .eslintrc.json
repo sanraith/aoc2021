@@ -21,6 +21,12 @@
         "react",
         "@typescript-eslint"
     ],
+    // https://github.com/yannickcr/eslint-plugin-react#configuration
+    "settings": {
+        "react": {
+            "version": "detect" // React version. "detect" automatically picks the version you have installed.
+        }
+    },
     "rules": {
         "indent": [
             "error",
@@ -35,16 +41,20 @@
             "always"
         ],
         "@typescript-eslint/explicit-module-boundary-types": [
-            "warn",
-            {
-                "allowExpressions": true
-            }
+            "warn"
         ]
-    },
-    // https://github.com/yannickcr/eslint-plugin-react#configuration
-    "settings": {
-        "react": {
-            "version": "detect" // React version. "detect" automatically picks the version you have installed.
-        }
     }
+    // "overrides": [
+    //     {
+    //         "files": [
+    //             "src/*.tsx"
+    //         ],
+    //         "rules": {
+    //             "indent": [
+    //                 "error",
+    //                 2
+    //             ]
+    //         }
+    //     }
+    // ],
 }

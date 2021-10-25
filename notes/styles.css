@@ -12,9 +12,6 @@ body {
     width: fit-content;
 }
 
-.calendar .row {
-}
-
 .calendar .col {
     float: left;
     width: 50px;
