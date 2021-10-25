@@ -1,0 +1,21 @@
+{
+    "compileOnSave": false,
+    "compilerOptions": {
+        "baseUrl": "./",
+        "outDir": "dist/",
+        "sourceMap": true,
+        "declaration": false,
+        "downlevelIteration": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "importHelpers": true,
+        "target": "es6",
+        "lib": [
+            "es2015"
+        ],
+        "skipLibCheck": true, /* Skip type checking of declaration files. */
+        "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
+    }
+}

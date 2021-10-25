@@ -5,6 +5,7 @@
     "scripts": {
         "start": "react-scripts start",
         "build": "react-scripts build",
+        "deploy": "ts-node -C typescript -P util/tsconfig.util.json util/deploy.ts",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
         "lint": "eslint src/*.tsx"
@@ -23,11 +24,14 @@
         "web-vitals": "^1.1.2"
     },
     "devDependencies": {
+        "@types/fs-extra": "^9.0.13",
         "@typescript-eslint/eslint-plugin": "^5.2.0",
         "@typescript-eslint/parser": "^5.2.0",
         "eslint": "^7.32.0",
         "eslint-plugin-react": "^7.26.1",
-        "react-scripts": "4.0.3"
+        "fs-extra": "^10.0.0",
+        "react-scripts": "4.0.3",
+        "ts-node": "^10.4.0"
     },
     "browserslist": {
         "production": [
