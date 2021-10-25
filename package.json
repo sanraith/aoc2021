@@ -2,6 +2,7 @@
     "name": "aoc2021",
     "version": "0.1.0",
     "private": true,
+    "homepage": "aoc2021/",
     "scripts": {
         "start": "react-scripts start",
         "build": "react-scripts build",

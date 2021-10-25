@@ -15,6 +15,9 @@ async function deploy() {
     console.log('Copying build/ to docs/...');
     await fsx.copy('build/', 'docs/', { recursive: true });
 
+    console.log('Adding docs/.nojekyll for github pages...');
+    await fsx.writeFile('docs/.nojekyll', '', { encoding: 'utf-8' });
+
     console.log('Done.');
 }
 
