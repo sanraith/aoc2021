@@ -2,7 +2,8 @@
     "cSpell.words": [
         "browserslist",
         "linebreak",
-        "notransition"
+        "notransition",
+        "webfonts"
     ],
     "files.exclude": {
         // Defaults
