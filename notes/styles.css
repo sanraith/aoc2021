@@ -12,7 +12,8 @@ body {
     width: fit-content;
 }
 
-.calendar .col {
+.calendar .col,
+.col2 {
     float: left;
     width: 50px;
     height: 50px;
@@ -26,7 +27,8 @@ body {
     background-color: gray;
 }
 
-.calendar .col span {
+.calendar .col span,
+.col2 span {
     display: table-cell; /* for text vertical align */
     text-align: center;
     vertical-align: middle;
@@ -39,10 +41,21 @@ body {
     z-index: 9999;
     visibility: hidden;
 
-    -moz-transition: all 1s ease;
-    -webkit-transition: all 1s ease;
-    -o-transition: all 1s ease;
-    transition: all 1s ease;
+    transition: all 0.5s ease;
+}
+
+.col2 {
+    margin: 0;
+    border: 0;
+}
+
+.col2 span {
+    font-size: 16px;
+    transition: font-size 0.5s ease;
+}
+
+.col2.big span {
+    font-size: 42px;
 }
 
 .notransition {

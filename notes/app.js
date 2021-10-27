@@ -54,6 +54,7 @@ async function openPopup() {
         popup.style.left = dayPos.x + 'px';
         popup.style.top = dayPos.y + 'px';
     });
+    popup.getElementsByClassName('col2')[0].classList.add('big');
     await styleTransitionAsync(popup, {
         width: '90vw',
         height: '90vh',
@@ -72,6 +73,7 @@ function closePopup() {
     popup.style.left = dayPos.x + 'px';
     popup.style.top = dayPos.y + 'px';
     popup.style.visibility = 'hidden';
+    popup.getElementsByClassName('col2')[0].classList.remove('big');
     dayBox.style.visibility = 'visible';
 }
 

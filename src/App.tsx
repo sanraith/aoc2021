@@ -3,21 +3,16 @@ import './App.css';
 
 function calendarCellId(dayNumber: number) { return `cd${dayNumber}`; }
 
-interface PopupProps {
-    cellId: string | null;
-    onClosed: () => void;
-}
-
-function getPopupStyle(cellId: string | null, prevCellId: string | null, state: 'start' | 'end'): React.CSSProperties {
+function getPopupStyle(day: number | null, prevCellId: number | null, state: 'start' | 'end'): React.CSSProperties {
     // Skip invalid case.
-    if (!cellId && !prevCellId) { return { visibility: 'hidden' }; }
+    if (!day && !prevCellId) { return { visibility: 'hidden' }; }
 
     // If we switch between cells, pretend that we closed the previous one.
-    if (cellId && prevCellId) { prevCellId = null; }
+    if (day && prevCellId) { prevCellId = null; }
 
-    const cell = document.getElementById(cellId ? cellId : prevCellId!)!;
+    const cell = document.getElementById(day ? calendarCellId(day) : calendarCellId(prevCellId!))!;
     const cellRect = cell.getBoundingClientRect();
-    const isOpenDirection = state === 'start' && cellId || state === 'end' && prevCellId;
+    const isOpenDirection = state === 'start' && day || state === 'end' && prevCellId;
     if (isOpenDirection) {
         return {
             visibility: 'hidden',
@@ -37,51 +32,71 @@ function getPopupStyle(cellId: string | null, prevCellId: string | null, state: 
     }
 }
 
-function Popup({ cellId, onClosed }: PopupProps) {
-    const prevCellIdRef = useRef<string | null>(null);
+interface CalendarCellProps {
+    day?: number | null;
+    isCopy?: boolean;
+    isBig?: boolean;
+    onCellClick?: (day: number) => void;
+}
+function CalendarCell({ day, isCopy, isBig, onCellClick }: CalendarCellProps) {
+    if (day && day >= 1 && day <= 31) {
+        const cellId = calendarCellId(day);
+        return (
+            <div id={(isCopy ? 'copy' : '') + cellId}
+                className={'calendarCol' + (isCopy ? ' copy' : '') + (isBig ? ' big' : '')}
+                onClick={() => onCellClick && onCellClick(day)}
+            >
+                <span>{day}</span>
+            </div>
+        );
+    } else {
+        return (<div className="calendarCol gray"><span></span></div>);
+    }
+}
+
+interface PopupProps {
+    day: number | null;
+    onClosed: () => void;
+}
+function Popup({ day, onClosed }: PopupProps) {
+    const prevDayRef = useRef<number | null>(null);
     const popupRef = useRef<HTMLDivElement>(null);
-    const style = getPopupStyle(cellId, prevCellIdRef.current, 'start');
+    const style = getPopupStyle(day, prevDayRef.current, 'start');
 
     // After the initial render, turn on transitions and enlarge popup.
     useEffect(() => {
         if (!popupRef.current) { return; }
         popupRef.current.classList.remove('notransition');
-        Object.assign(popupRef.current.style, getPopupStyle(cellId, prevCellIdRef.current, 'end'));
-        prevCellIdRef.current = cellId;
-    }, [cellId]);
+        if (day) {
+            popupRef.current.classList.add('big');
+        } else {
+            popupRef.current.classList.remove('big');
+        }
+        Object.assign(popupRef.current.style, getPopupStyle(day, prevDayRef.current, 'end'));
+        prevDayRef.current = day;
+    }, [day]);
 
     return (
-        <div key={cellId} className='popup notransition' style={style} ref={popupRef} onClick={() => onClosed()}>
-            alma
+        <div key={day} className={'popup notransition' + (day ? '' : ' big')}
+            style={style} ref={popupRef} onClick={() => onClosed()}>
+            <CalendarCell day={day ?? prevDayRef.current} isCopy={true} />
         </div>
     );
 }
 
 function Calendar() {
-    const rows = Array(5).fill(0).map((_, i) =>
-        Array(7).fill(0).map((_, j) => i * 7 + j - 1));
-
-    const [openedCell, setOpenedCell] = useState<string | null>(null);
-
-    const onCellClick = (cellId: string) => setOpenedCell(openedCell === cellId ? null : cellId);
+    const rows = Array(5).fill(0).map((_, i) => Array(7).fill(0).map((_, j) => i * 7 + j - 1));
+    const [openedDay, setOpenedCell] = useState<number | null>(null);
+    const onCellClick = (day: number) => setOpenedCell(openedDay === day ? null : day);
 
     return (<React.Fragment>
-        <Popup cellId={openedCell} onClosed={() => setOpenedCell(null)} />
+        <Popup day={openedDay} onClosed={() => setOpenedCell(null)} />
         <div className="calendar">
             {rows.map((row, rowIndex) => (
-                <div className="row" key={rowIndex}>
-                    {row.map(col => {
-                        if (col >= 1 && col <= 31) {
-                            return (
-                                <div id={calendarCellId(col)} className="col" key={col}
-                                    onClick={() => onCellClick(calendarCellId(col))}>
-                                    <span>{col}</span>
-                                </div>
-                            );
-                        } else {
-                            return (<div className="col gray" key={col}><span></span></div>);
-                        }
-                    })}
+                <div key={rowIndex}>
+                    {row.map(day =>
+                        (<CalendarCell key={day} day={day} onCellClick={day => onCellClick(day)} />)
+                    )}
                 </div>
             ))}
         </div>

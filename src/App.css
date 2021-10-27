@@ -1,3 +1,4 @@
+/* Calendar styles */
 .calendar {
     display: block;
     user-select: none;
@@ -6,7 +7,7 @@
     width: fit-content;
 }
 
-.calendar .col {
+.calendarCol {
     float: left;
     width: 50px;
     height: 50px;
@@ -14,18 +15,22 @@
 
     margin: 10px;
     border: 1px solid;
+    cursor: pointer;
 }
 
-.calendar .col.gray {
+.calendarCol.gray {
     background-color: gray;
+    cursor: default;
 }
 
-.calendar .col span {
+.calendarCol span {
     display: table-cell; /* for text vertical align */
     text-align: center;
     vertical-align: middle;
+    font-size: 16px;
 }
 
+/* Popup styles */
 .popup {
     position: absolute;
     border: 1px solid red;
@@ -33,10 +38,24 @@
     z-index: 9999;
     visibility: hidden;
 
-    -moz-transition: all 1s ease;
-    -webkit-transition: all 1s ease;
-    -o-transition: all 1s ease;
-    transition: all 1s ease;
+    -moz-transition: all 0.5s ease;
+    -webkit-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+.calendarCol.copy {
+    border: 0;
+    margin: 0;
+    cursor: default;
+}
+
+.calendarCol.copy span {
+    transition: font-size 0.5s ease;
+}
+
+.big > .calendarCol span {
+    font-size: 42px;
 }
 
 .notransition {
