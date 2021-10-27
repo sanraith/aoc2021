@@ -21,54 +21,37 @@ function getPopupStyle(cellId: string | null, prevCellId: string | null, state: 
     if (isOpenDirection) {
         return {
             visibility: 'hidden',
-            left: cellRect.x,
-            top: cellRect.y,
+            left: cellRect.x + 'px',
+            top: cellRect.y + 'px',
             width: cellRect.width + 'px',
             height: cellRect.height + 'px'
         };
     } else {
         return {
             visibility: 'visible',
-            left: Math.max(11, cellRect.x - 50),
-            top: Math.max(11, cellRect.y - 50),
-            width: cellRect.width + 100,
-            height: cellRect.height + 100
+            left: Math.max(11, cellRect.x - 50) + 'px',
+            top: Math.max(11, cellRect.y - 50) + 'px',
+            width: cellRect.width + 100 + 'px',
+            height: cellRect.height + 100 + 'px'
         };
     }
 }
 
 function Popup({ cellId, onClosed }: PopupProps) {
-    console.log(cellId + ' render in');
     const prevCellIdRef = useRef<string | null>(null);
-    const [style, setStyle] = useState<React.CSSProperties>();
-    const [hasTransition, setHasTransition] = useState(false);
-    const [animationStep, setAnimationStep] = useState(0);
+    const popupRef = useRef<HTMLDivElement>(null);
+    const style = getPopupStyle(cellId, prevCellIdRef.current, 'start');
 
-    // If cellId changes, turn off transition and position popup.
+    // After the initial render, turn on transitions and enlarge popup.
     useEffect(() => {
-        console.log(cellId + ' anim-0 in');
-        const localStyle = getPopupStyle(cellId, prevCellIdRef.current, 'start');
-        setHasTransition(false);
-        setStyle(localStyle);
-        setAnimationStep(1);
-        console.log(cellId + ' anim-0 out');
+        if (!popupRef.current) { return; }
+        popupRef.current.classList.remove('notransition');
+        Object.assign(popupRef.current.style, getPopupStyle(cellId, prevCellIdRef.current, 'end'));
+        prevCellIdRef.current = cellId;
     }, [cellId]);
 
-    // After initial render, turn on transition and zoom in.
-    useEffect(() => {
-        if (animationStep !== 1) { return; }
-        console.log(cellId + ' anim-1 in');
-        setHasTransition(true);
-        setStyle(getPopupStyle(cellId, prevCellIdRef.current, 'end'));
-        setAnimationStep(0);
-        console.log(cellId + ' anim-1 out');
-        prevCellIdRef.current = cellId;
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [animationStep]);
-
-    console.log(cellId + ' render out');
     return (
-        <div id="popup" className={'popup' + (hasTransition ? '' : ' notransition')} style={style} onClick={() => onClosed()}>
+        <div key={cellId} className='popup notransition' style={style} ref={popupRef} onClick={() => onClosed()}>
             alma
         </div>
     );

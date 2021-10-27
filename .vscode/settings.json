@@ -3,5 +3,17 @@
         "browserslist",
         "linebreak",
         "notransition"
-    ]
+    ],
+    "files.exclude": {
+        // Defaults
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        // Hide unnecessary folders
+        "node_modules/": true,
+        "build/": true
+    }
 }
