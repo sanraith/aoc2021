@@ -23,6 +23,10 @@ function getPopupStyle(day: number | null, prevCellId: number | null, state: 'st
         };
     } else {
         return {
+            // left: '5vw',
+            // top: '5vh',
+            // width: '90vw',dd
+            // height: '50vh',
             visibility: 'visible',
             left: Math.max(11, cellRect.x - 50) + 'px',
             top: Math.max(11, cellRect.y - 50) + 'px',
@@ -35,22 +39,18 @@ function getPopupStyle(day: number | null, prevCellId: number | null, state: 'st
 interface CalendarCellProps {
     day?: number | null;
     isCopy?: boolean;
-    isBig?: boolean;
     onCellClick?: (day: number) => void;
 }
-function CalendarCell({ day, isCopy, isBig, onCellClick }: CalendarCellProps) {
+function CalendarCell({ day, isCopy, onCellClick }: CalendarCellProps) {
     if (day && day >= 1 && day <= 31) {
         const cellId = calendarCellId(day);
         return (
-            <div id={(isCopy ? 'copy' : '') + cellId}
-                className={'calendarCol' + (isCopy ? ' copy' : '') + (isBig ? ' big' : '')}
-                onClick={() => onCellClick && onCellClick(day)}
-            >
+            <div id={isCopy ? undefined : cellId} className={'calendar-cell'} onClick={() => onCellClick && onCellClick(day)}>
                 <span>{day}</span>
             </div>
         );
     } else {
-        return (<div className="calendarCol gray"><span></span></div>);
+        return (<div className="calendar-cell gray"><span></span></div>);
     }
 }
 
@@ -68,16 +68,16 @@ function Popup({ day, onClosed }: PopupProps) {
         if (!popupRef.current) { return; }
         popupRef.current.classList.remove('notransition');
         if (day) {
-            popupRef.current.classList.add('big');
+            popupRef.current.classList.add('open');
         } else {
-            popupRef.current.classList.remove('big');
+            popupRef.current.classList.remove('open');
         }
         Object.assign(popupRef.current.style, getPopupStyle(day, prevDayRef.current, 'end'));
         prevDayRef.current = day;
     }, [day]);
 
     return (
-        <div key={day} className={'popup notransition' + (day ? '' : ' big')}
+        <div key={day} className={'popup notransition' + (day ? '' : ' open')}
             style={style} ref={popupRef} onClick={() => onClosed()}>
             <CalendarCell day={day ?? prevDayRef.current} isCopy={true} />
         </div>
