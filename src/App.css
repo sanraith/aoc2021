@@ -4,3 +4,7 @@
     -o-transition: none !important;
     transition: none !important;
 }
+
+.pointer {
+    cursor: pointer;
+}

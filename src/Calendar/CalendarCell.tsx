@@ -7,10 +7,14 @@ export interface CalendarCellProps {
 }
 
 export default function CalendarCell({ day, isCopy, onCellClick }: CalendarCellProps): JSX.Element {
-    if (day && day >= 1 && day <= 31) {
+    const isDecemberDay = day && day >= 1 && day <= 31;
+    if (isDecemberDay) {
         const cellId = calendarCellId(day);
+        const isActiveDay = day <= 25;
         return (
-            <div id={isCopy ? undefined : cellId} className={'calendar-cell'} onClick={() => onCellClick && onCellClick(day)}>
+            <div id={isCopy ? undefined : cellId}
+                className={'calendar-cell' + (isActiveDay ? ' pointer' : '')}
+                onClick={() => isActiveDay && onCellClick && onCellClick(day)}>
                 <span>{day}</span>
             </div>
         );
