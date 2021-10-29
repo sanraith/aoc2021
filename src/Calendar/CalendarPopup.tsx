@@ -2,16 +2,17 @@ import { useEffect, useRef } from 'react';
 import CalendarCell from './CalendarCell';
 import { calendarCellId } from './helpers';
 
-function getPopupStyle(day: number | null, prevCellId: number | null, state: 'start' | 'end'): React.CSSProperties {
+function getPopupStyle(day: number | null, prevDay: number | null, state: 'start' | 'end'): React.CSSProperties {
     // Skip invalid case.
-    if (!day && !prevCellId) { return { visibility: 'hidden' }; }
+    if (!day && !prevDay) { return { visibility: 'hidden' }; }
 
     // If we switch between cells, pretend that we closed the previous one.
-    if (day && prevCellId) { prevCellId = null; }
+    if (day && prevDay) { prevDay = null; }
 
-    const cell = document.getElementById(day ? calendarCellId(day) : calendarCellId(prevCellId!))!;
+    const cellId = day ? calendarCellId(day) : calendarCellId(prevDay as number);
+    const cell = document.getElementById(cellId) as HTMLDivElement;
     const cellRect = cell.getBoundingClientRect();
-    const isOpenDirection = state === 'start' && day || state === 'end' && prevCellId;
+    const isOpenDirection = state === 'start' && day || state === 'end' && prevDay;
     if (isOpenDirection) {
         return {
             visibility: 'hidden',
@@ -22,15 +23,19 @@ function getPopupStyle(day: number | null, prevCellId: number | null, state: 'st
         };
     } else {
         return {
-            // left: '5vw',
-            // top: '5vh',
-            // width: '90vw',dd
-            // height: '50vh',
             visibility: 'visible',
-            left: Math.max(11, cellRect.x - 50) + 'px',
-            top: Math.max(11, cellRect.y - 50) + 'px',
-            width: cellRect.width + 100 + 'px',
-            height: cellRect.height + 100 + 'px'
+            left: '5vw',
+            top: '5vh',
+            height: '90vh',
+            maxHeight: '90vh',
+            width: '90vw',
+            maxWidth: '90vw',
+            // width: '90vw',
+            // height: '50vh',
+            // left: Math.max(11, cellRect.x - 50) + 'px',
+            // top: Math.max(11, cellRect.y - 50) + 'px',
+            // width: cellRect.width + 100 + 'px',
+            // height: cellRect.height + 100 + 'px'
         };
     }
 }

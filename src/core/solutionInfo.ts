@@ -8,7 +8,7 @@ export type Constructor<T> = {
 };
 
 export type SolutionInfoParams = {
-    day: number,
+    day: number;
     title: string;
 };
 
@@ -20,7 +20,7 @@ export type SolutionInfo = SolutionInfoParams & {
 export function solutionInfo<TCtor extends Constructor<SolutionBase>>(day: number, title: string): (ctor: TCtor) => void;
 export function solutionInfo<TCtor extends Constructor<SolutionBase>>(info: SolutionInfoParams): (ctor: TCtor) => void;
 export function solutionInfo<TCtor extends Constructor<SolutionBase>>(...params: [number, string] | [SolutionInfoParams]): (ctor: TCtor) => void {
-    const info = typeof params[0] === 'number' ? { day: params[0], title: params[1]! } : params[0];
+    const info = typeof params[0] === 'number' ? { day: params[0], title: params[1] as string } : params[0];
     return (ctor: TCtor): void => {
         solutionInfoList.push({
             ...info,

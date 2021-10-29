@@ -13,7 +13,7 @@ export default abstract class SolutionBase {
     minTimeBetweenUpdatesMs = 20;
 
     protected visualizationData: unknown;
-    protected input!: string;
+    protected get input(): string { return this._input ?? ''; }
     protected get inputLines(): string[] {
         if (this._inputLines === undefined) {
             this._inputLines = this.parseInputLines(this.input);
@@ -21,11 +21,12 @@ export default abstract class SolutionBase {
         return this._inputLines;
     }
 
+    private _input?: string;
     private _inputLines?: string[];
     private currentSolution?: CurrentSolution;
 
     init(input: string): this {
-        this.input = input;
+        this._input = input;
         return this;
     }
 
@@ -39,7 +40,7 @@ export default abstract class SolutionBase {
 
     solveWithProgress(part: 1 | 2): Observable<SolutionState> {
         return new Observable<SolutionState>(subscriber => {
-            if (!this.input || this.input.length === 0) {
+            if (!this._input) {
                 subscriber.error(new SolutionError(part, 'No input provided!'));
                 return;
             }
@@ -80,8 +81,8 @@ export default abstract class SolutionBase {
     protected abstract part2(): string | number;
 
     protected updateProgress(progress: number): void {
-        const current = this.currentSolution!;
-        if (current.progressStopwatch.getTime() > this.minTimeBetweenUpdatesMs) {
+        const current = this.currentSolution;
+        if (current && current.progressStopwatch.getTime() > this.minTimeBetweenUpdatesMs) {
             current.subscriber.next(
                 new SolutionProgress(current.activePart, progress, current.stopwatch.getTime())
             );

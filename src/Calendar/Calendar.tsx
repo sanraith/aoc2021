@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './Calendar.css';
 import CalendarCell from './CalendarCell';
 import Popup from './CalendarPopup';
 
@@ -12,8 +13,9 @@ export default function Calendar(): JSX.Element {
         <div className="calendar">
             {rows.map((row, rowIndex) => (
                 <div key={rowIndex}>
-                    {row.map(day => (<CalendarCell key={day} day={day} onCellClick={day => onCellClick(day)} />)
-                    )}
+                    {row.map(day => (
+                        <CalendarCell key={day} day={day} onCellClick={day => onCellClick(day)} />
+                    ))}
                 </div>
             ))}
         </div>
