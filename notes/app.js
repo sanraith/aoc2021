@@ -40,6 +40,17 @@ function styleTransitionAsync(element, styleChanges, timeout = 5000) {
     });
 }
 
+function viewPortSize() {
+    const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+    const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+
+    return { vw, vh };
+}
+
+function px(x) {
+    return x + 'px';
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function openPopup() {
     const dayBox = document.getElementById('8box');
@@ -55,11 +66,21 @@ async function openPopup() {
         popup.style.top = dayPos.y + 'px';
     });
     popup.getElementsByClassName('col2')[0].classList.add('big');
+
+    const { vw, vh } = viewPortSize();
+    const width = vw / 2;
+    const height = vh / 2;
+
+    const left = (vw - width) / 2;
+    const top = (vh - height) / 2;
+
+
     await styleTransitionAsync(popup, {
-        width: '90vw',
-        height: '90vh',
-        left: '5vw',
-        top: '5vh'
+        width: px(width),
+        height: px(height),
+        left: px(left),
+        top: px(top),
+        borderRadius: '15px'
     });
 }
 
@@ -78,5 +99,5 @@ function closePopup() {
 }
 
 window.onload = function () {
-    // init();
+    openPopup();
 };
