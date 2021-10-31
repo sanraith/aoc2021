@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import CalendarCell from './CalendarCell';
-import { calendarCellId } from './helpers';
+import { calendarCellId, px, getViewportSize } from './helpers';
 
 function getPopupStyle(day: number | null, prevDay: number | null, state: 'start' | 'end'): React.CSSProperties {
     // Skip invalid case.
@@ -16,26 +16,24 @@ function getPopupStyle(day: number | null, prevDay: number | null, state: 'start
     if (isOpenDirection) {
         return {
             visibility: 'hidden',
-            left: cellRect.x + 'px',
-            top: cellRect.y + 'px',
-            width: cellRect.width + 'px',
-            height: cellRect.height + 'px'
+            left: px(cellRect.x),
+            top: px(cellRect.y),
+            width: px(cellRect.width),
+            height: px(cellRect.height)
         };
     } else {
+        const { vw, vh } = getViewportSize();
+        const width = 800;
+        const height = 400;
+        const left = (vw - width) / 2;
+        const top = (vh - height) / 2;
+
         return {
             visibility: 'visible',
-            left: '5vw',
-            top: '5vh',
-            height: '90vh',
-            maxHeight: '90vh',
-            width: '90vw',
-            maxWidth: '90vw',
-            // width: '90vw',
-            // height: '50vh',
-            // left: Math.max(11, cellRect.x - 50) + 'px',
-            // top: Math.max(11, cellRect.y - 50) + 'px',
-            // width: cellRect.width + 100 + 'px',
-            // height: cellRect.height + 100 + 'px'
+            width: px(width),
+            height: px(height),
+            left: px(left),
+            top: px(top)
         };
     }
 }
@@ -66,7 +64,25 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
     return (
         <div key={day} className={'popup notransition' + (day ? '' : ' open')}
             style={style} ref={popupRef} onClick={() => onClosed()}>
-            <CalendarCell day={day ?? prevDayRef.current} isCopy={true} />
+            <div className="popup-grid">
+                <div className='popup-number'>
+                    <CalendarCell day={day ?? prevDayRef.current} isCopy={true} />
+                </div>
+                <div className="popup-title fade">
+                    The Tyranny of the Rocket Equation
+                </div>
+                {Array(2).fill(0).map((_, partIndex) => (<React.Fragment key={partIndex}>
+                    <div className='popup-part-label fade'>
+                        Part {partIndex + 1}:
+                    </div>
+                    <div className='popup-part-result fade'>
+                        849272349
+                    </div>
+                    <div className='popup-part-performance fade'>
+                        123 ms
+                    </div>
+                </React.Fragment>))}
+            </div>
         </div>
     );
 }

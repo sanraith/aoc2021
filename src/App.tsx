@@ -19,7 +19,7 @@ function App(): JSX.Element {
                 console.log('lol', intervalId);
                 clearInterval(intervalId);
             }
-        }, 1000);
+        }, 100);
 
         return () => clearInterval(intervalId);
     }, []);

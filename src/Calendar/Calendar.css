@@ -32,27 +32,28 @@
 
 /* Popup styles */
 .popup {
+    --open-duration: 0.5s;
+
     position: absolute;
     border: 1px solid red;
     background-color: #eceff1;
     z-index: 9999;
     visibility: hidden;
 
-    -moz-transition: all 0.5s ease;
-    -webkit-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
-    transition: all 0.5s ease;
+    transition: all var(--open-duration) ease;
     cursor: pointer;
+    overflow: hidden;
 }
 
 .popup .calendar-cell {
     border: 0;
     margin: 0;
-    transition: margin 0.5s ease;
+    transition: margin var(--open-duration) ease;
+    float: none;
 }
 
 .popup .calendar-cell span {
-    transition: font-size 0.5s ease;
+    transition: font-size var(--open-duration) ease;
 }
 
 .popup.open .calendar-cell {
@@ -61,4 +62,41 @@
 
 .popup.open .calendar-cell span {
     font-size: 42px;
+}
+
+/* Popup content */
+
+.popup-grid {
+    display: grid;
+    grid-template-columns: [cleft] 75px [cmiddle] auto [cright] 100px;
+    grid-template-areas:
+        "number title title"
+        ". . ."
+        ". . ."
+        "footer footer footer";
+}
+
+.fade {
+    opacity: 0;
+    transition: opacity var(--open-duration) ease;
+}
+
+.popup.open .fade {
+    opacity: 1;
+}
+
+.popup-number {
+    grid-area: number;
+}
+.popup-title {
+    grid-area: title;
+}
+.popup-part-label {
+    grid-column: cleft;
+}
+.popup-part-result {
+    grid-column: cmiddle;
+}
+.popup-part-performance {
+    grid-column: cright;
 }
