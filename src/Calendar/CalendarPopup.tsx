@@ -79,7 +79,7 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
                         849272349
                     </div>
                     <div className='popup-part-performance fade'>
-                        123 ms
+                        123 ms 🕑
                     </div>
                 </React.Fragment>))}
             </div>

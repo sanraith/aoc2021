@@ -33,6 +33,7 @@
 /* Popup styles */
 .popup {
     --open-duration: 0.5s;
+    --width: 800px;
 
     position: absolute;
     border: 1px solid red;
@@ -56,10 +57,6 @@
     transition: font-size var(--open-duration) ease;
 }
 
-.popup.open .calendar-cell {
-    margin: 10px;
-}
-
 .popup.open .calendar-cell span {
     font-size: 42px;
 }
@@ -67,13 +64,25 @@
 /* Popup content */
 
 .popup-grid {
+    --margin: 30px;
+
     display: grid;
     grid-template-columns: [cleft] 75px [cmiddle] auto [cright] 100px;
+    /* grid-template-rows: [header] auto 20px [partrow] auto 20px [partrow]; */
     grid-template-areas:
         "number title title"
         ". . ."
         ". . ."
         "footer footer footer";
+
+    margin: 0;
+    transition: margin var(--open-duration) ease;
+    width: calc(var(--width) - var(--margin) * 2);
+}
+
+.popup.open .popup-grid {
+    margin: 30px;
+    width: calc(var(--width) - var(--margin) * 2);
 }
 
 .fade {
@@ -90,6 +99,8 @@
 }
 .popup-title {
     grid-area: title;
+    font-size: 32px;
+    place-self: center stretch;
 }
 .popup-part-label {
     grid-column: cleft;
