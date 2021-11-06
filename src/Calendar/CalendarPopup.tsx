@@ -71,6 +71,8 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
                 <div className="popup-title fade">
                     The Tyranny of the Rocket Equation
                 </div>
+                <div className="spacer"></div>
+
                 {Array(2).fill(0).map((_, partIndex) => (<React.Fragment key={partIndex}>
                     <div className='popup-part-label fade'>
                         Part {partIndex + 1}:
