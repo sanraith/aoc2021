@@ -12,6 +12,14 @@ function RouteParser(): null {
     return null;
 }
 
+const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) ||
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ('msMaxTouchPoints' in navigator && (navigator as any).msMaxTouchPoints > 0);
+
+if (!isTouchDevice) {
+    document.body.classList.add('no-touch');
+}
+
 ReactDOM.render(
     <React.StrictMode>
         <BrowserRouter basename={process.env.PUBLIC_URL}>

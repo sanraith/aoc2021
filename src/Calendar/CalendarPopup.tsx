@@ -112,13 +112,15 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
                 </React.Fragment>))}
 
                 <div style={{ height: '10px' }}></div>
-                <div className='popup-part-footer'>
-                    <button className='secondary'>Input</button>
-                    <button className='secondary'>Source</button>
-                    <button className='secondary'>Puzzle</button>
-                    <button className='primary'> Solve</button >
-                </div >
-            </div >
-        </div >
+                <div className='popup-part-footer fade'>
+                    <div className='collapsible'>
+                        <button className='secondary'><span>💽</span> Input</button>
+                        <button className='secondary'><span>💻</span> Source</button>
+                        <button className='secondary'><span>📜</span> Puzzle</button>
+                    </div>
+                    <button className='primary'>Solve 📈</button >
+                </div>
+            </div>
+        </div>
     );
 }

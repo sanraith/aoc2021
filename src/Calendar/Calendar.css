@@ -39,7 +39,7 @@
 
 /* Popup styles */
 .popup {
-    --open-duration: 0.5s;
+    --open-duration: 0.4s;
     --width: 800px;
 
     position: absolute;
@@ -131,8 +131,10 @@
     justify-self: end;
 }
 
+/* Buttons in popup */
 .popup button {
-    font-size: 20px;
+    font-size: 18px;
+    line-height: 20px;
     background-color: aqua;
     border: 1px gray solid;
     border-radius: 10px;
@@ -148,6 +150,39 @@
 }
 .popup button.secondary {
     background-color: lightblue;
+}
+
+/* Collapsible extra buttons in popup (collapsed only on non-touch device) */
+.collapsible {
+    display: inline-block;
+}
+.no-touch .collapsible button {
+    --open-duration: 0.25s;
+
+    white-space: pre;
+    display: inline-block;
+    width: 100px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-right: -60px;
+
+    overflow: hidden;
+    transition: margin var(--open-duration) ease,
+        width var(--open-duration) ease;
+    text-align: center;
+}
+.no-touch .collapsible button > span {
+    display: inline-block;
+    margin-right: 10px;
+    transition: margin var(--open-duration) ease;
+}
+.no-touch .collapsible:hover button {
+    width: 120px;
+    margin-right: 0;
+    overflow: visible;
+}
+.no-touch .collapsible:hover button > span {
+    margin-right: 0;
 }
 
 /* etc */
