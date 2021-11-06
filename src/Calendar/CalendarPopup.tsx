@@ -77,7 +77,8 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
         if (!day) { return; }
 
         function onDocumentClick(e: MouseEvent) {
-            const isOutsideClick = !(popupRef.current?.contains(e.target as Node) ?? false);
+            const calendar = document.getElementById('calendar')!;
+            const isOutsideClick = popupRef.current && !popupRef.current.contains(e.target as Node) && !calendar.contains(e.target as Node);
             const isEmptyInsideClick = e.target === popupRef.current || e.target === popupGridRef.current;
             const isSelectionEvent = !!window.getSelection()?.toString();
             if (!isSelectionEvent && (isOutsideClick || isEmptyInsideClick)) {
@@ -120,6 +121,7 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
                     </div>
                     <button className='primary'>Solve 📈</button >
                 </div>
+                <div style={{ height: '10px' }}></div>
             </div>
         </div>
     );

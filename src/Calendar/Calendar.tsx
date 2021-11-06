@@ -16,7 +16,7 @@ export default function Calendar(): JSX.Element {
 
     return (<React.Fragment>
         <Popup day={openedDay} onClosed={() => onCellClick(null)} />
-        <div className="calendar">
+        <div id="calendar" className="calendar">
             {rows.map(row => row.map(day => (
                 <CalendarCell key={day} day={day} onCellClick={day => onCellClick(day)} />
             )))}
