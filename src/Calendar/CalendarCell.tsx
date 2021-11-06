@@ -13,7 +13,7 @@ export default function CalendarCell({ day, isCopy, onCellClick }: CalendarCellP
         const isActiveDay = day <= 25;
         return (
             <div id={isCopy ? undefined : cellId}
-                className={'calendar-cell' + (isActiveDay ? ' pointer' : '')}
+                className={'calendar-cell' + (isActiveDay && !isCopy ? ' pointer' : '')}
                 onClick={() => isActiveDay && onCellClick && onCellClick(day)}>
                 <span>{day}</span>
             </div>
