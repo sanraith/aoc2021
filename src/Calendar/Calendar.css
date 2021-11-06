@@ -1,19 +1,26 @@
 /* Calendar styles */
 .calendar {
-    display: block;
+    display: grid;
+    grid-template-columns: repeat(7, auto);
+    column-gap: 20px;
+    row-gap: 20px;
+    padding: 20px;
+
     user-select: none;
     border: 1px dashed;
     overflow: hidden;
     width: fit-content;
+
+    margin-top: 50px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .calendar-cell {
-    float: left;
     width: 75px;
     height: 75px;
     display: table; /* for text vertical align */
 
-    margin: 10px;
     border: 1px solid;
     user-select: none;
 }
@@ -27,7 +34,7 @@
     display: table-cell; /* for text vertical align */
     text-align: center;
     vertical-align: middle;
-    font-size: 16px;
+    font-size: 18px;
 }
 
 /* Popup styles */

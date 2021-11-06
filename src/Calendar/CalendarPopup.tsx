@@ -22,11 +22,11 @@ function getPopupStyle(day: number | null, prevDay: number | null, state: 'start
             height: px(cellRect.height)
         };
     } else {
-        const { vw, vh } = getViewportSize();
+        const { vw/*, vh*/ } = getViewportSize();
         const width = 800;
-        const height = 400;
+        const height = 300;
         const left = (vw - width) / 2;
-        const top = (vh - height) / 2;
+        const top = 100;//(vh - height) / 2;
 
         return {
             visibility: 'visible',
