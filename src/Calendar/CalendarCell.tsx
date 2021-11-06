@@ -1,4 +1,4 @@
-import { calendarCellId } from './helpers';
+import { calendarCellId } from './calendarHelpers';
 
 export interface CalendarCellProps {
     day?: number | null;

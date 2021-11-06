@@ -34,7 +34,7 @@
     display: table-cell; /* for text vertical align */
     text-align: center;
     vertical-align: middle;
-    font-size: 18px;
+    font-size: 22px;
 }
 
 /* Popup styles */
@@ -182,12 +182,12 @@
     margin-right: 10px;
     transition: margin var(--open-duration) ease;
 }
-.no-touch .collapsible:hover button {
+.no-touch .popup-part-footer:hover .collapsible button {
     width: 120px;
     margin-right: 0;
     overflow: visible;
 }
-.no-touch .collapsible:hover button > span {
+.no-touch .popup-part-footer:hover .collapsible button > span {
     margin-right: 0;
 }
 
