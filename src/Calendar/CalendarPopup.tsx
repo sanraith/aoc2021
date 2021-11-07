@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef } from 'react';
-import { ContainerContext } from '../Container';
+import { ContainerContext } from '../services/container';
 import solutionManager from '../core/solutionManager';
 import CalendarCell from './CalendarCell';
 import { tap } from 'rxjs/operators';
@@ -18,7 +18,7 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
     const popupGridRef = useRef<HTMLDivElement>(null);
     const style = getPopupStyle(day, prevDayRef.current, 'start', popupGridRef.current);
     const visualizedDay = day ?? prevDayRef.current ?? 0;
-    const workerService = useContext(ContainerContext).workerService;
+    const { workerService, inputService } = useContext(ContainerContext);
 
     // After the initial render, turn on transitions and enlarge popup.
     useEffect(() => {
@@ -50,16 +50,16 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
         return () => document.removeEventListener('click', onDocumentClick);
     }, [day, onClosed]);
 
-    const onSolveClick = (day: EventDay | null) => {
+    const onSolveClick = async (day: EventDay | null) => {
         if (!day) { return; }
+        const input = await inputService.getInput(day);
+        if (input === null) { return; }
 
-        for (const part in [1, 2] as const) {
-            workerService.solveAsync(day, part).pipe(tap(x => {
-                if (x.type !== 'progress') {
-                    console.log(x);
-                }
-            })).subscribe();
-        }
+        workerService.solveAsync(day, input).pipe(tap(x => {
+            if (x.type !== 'progress') {
+                console.log(x);
+            }
+        })).subscribe();
     };
 
     return (<div key={day} ref={popupRef} className={'popup notransition' + (day ? '' : ' open')} style={style}>
