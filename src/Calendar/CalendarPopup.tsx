@@ -1,11 +1,14 @@
 import React, { useEffect, useRef } from 'react';
+import solutionManager from '../core/solutionManager';
 import CalendarCell from './CalendarCell';
-import { getPopupStyle, openPuzzleDescriptionInNewTab, openSourceCodeInNewTab } from './calendarHelpers';
+import { EventDay, getPopupStyle, openPuzzleDescriptionInNewTab, openSourceCodeInNewTab } from './calendarHelpers';
 
 interface PopupProps {
-    day: number | null;
+    day: EventDay | null;
     onClosed: () => void;
 }
+
+const solutionsByDay = solutionManager.getSolutionsByDay();
 
 export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Element {
     const prevDayRef = useRef<number | null>(null);
@@ -43,13 +46,15 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
         return () => document.removeEventListener('click', onDocumentClick);
     }, [day, onClosed]);
 
+    const visualizedDay = day ?? prevDayRef.current ?? 0;
+
     return (<div key={day} ref={popupRef} className={'popup notransition' + (day ? '' : ' open')} style={style}>
         <div ref={popupGridRef} className='popup-grid'>
             <div className='popup-number'>
-                <CalendarCell day={day ?? prevDayRef.current} isCopy={true} />
+                <CalendarCell day={visualizedDay} isCopy={true} />
             </div>
             <div className='popup-title fade'>
-                The Tyranny of the Rocket Equation
+                {solutionsByDay.get(visualizedDay)?.title}
             </div>
             <div className='spacer'></div>
 
@@ -65,7 +70,7 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
                 </div>
             </React.Fragment>))}
 
-            <div style={{ height: '10px' }}></div>
+            <div style={{ height: '20px' }}></div>
             <div className='popup-part-footer fade'>
                 <div className='collapsible'>
                     <button className='secondary' onClick={() => alert('Not implemented yet.')}>
@@ -81,7 +86,7 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
                     </button>
                 </div>
                 <button className='primary' onClick={() => alert('Not implemented yet.')}>
-                    Solve 📈
+                    📈 Solve
                 </button >
             </div>
             <div style={{ height: '10px' }}></div>

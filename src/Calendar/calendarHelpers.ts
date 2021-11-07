@@ -68,3 +68,5 @@ export function openSourceCodeInNewTab(day: number | null): void {
     if (!day) { return; }
     window.open(`https://github.com/sanraith/aoc2021/blob/dev/src/solutions/day${day?.toString().padStart(2, '0')}.ts`);
 }
+
+export type EventDay = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25;

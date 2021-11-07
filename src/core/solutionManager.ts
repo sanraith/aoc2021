@@ -15,4 +15,4 @@ class SolutionManager {
 
 const solutionManager = new SolutionManager();
 
-export { solutionManager };
+export default solutionManager;

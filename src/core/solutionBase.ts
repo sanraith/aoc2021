@@ -12,7 +12,7 @@ interface CurrentSolution {
 export default abstract class SolutionBase {
     minTimeBetweenUpdatesMs = 20;
 
-    protected visualizationData: unknown;
+    protected visualizationData?: unknown;
     protected get input(): string { return this._input ?? ''; }
     protected get inputLines(): string[] {
         if (this._inputLines === undefined) {
@@ -88,6 +88,10 @@ export default abstract class SolutionBase {
             );
             current.progressStopwatch.start(true);
         }
+    }
+
+    protected noSolution(msg?: string): never {
+        throw new Error(msg);
     }
 
     private parseInputLines(input: string): string[] {
