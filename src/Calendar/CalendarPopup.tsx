@@ -6,13 +6,12 @@ import { EventDay, getPopupStyle, openPuzzleDescriptionInNewTab, openSourceCodeI
 import { SolutionState } from '../core/solutionProgress';
 import { Timer } from './Timer';
 
+const solutionsByDay = solutionManager.getSolutionsByDay();
+
 interface PopupProps {
     day: EventDay | null;
     onClosed: () => void;
 }
-
-const solutionsByDay = solutionManager.getSolutionsByDay();
-
 export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Element {
     const prevDayRef = useRef<number | null>(null);
     const popupRef = useRef<HTMLDivElement>(null);
