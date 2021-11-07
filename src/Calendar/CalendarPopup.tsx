@@ -1,9 +1,10 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { ContainerContext } from '../services/container';
 import solutionManager from '../core/solutionManager';
 import CalendarCell from './CalendarCell';
-import { tap } from 'rxjs/operators';
 import { EventDay, getPopupStyle, openPuzzleDescriptionInNewTab, openSourceCodeInNewTab } from './calendarHelpers';
+import { SolutionState } from '../core/solutionProgress';
+import { Timer } from './Timer';
 
 interface PopupProps {
     day: EventDay | null;
@@ -16,11 +17,14 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
     const prevDayRef = useRef<number | null>(null);
     const popupRef = useRef<HTMLDivElement>(null);
     const popupGridRef = useRef<HTMLDivElement>(null);
+    const cancelOngoingRef = useRef<() => void>();
+    const [solutionStates, setSolutionStates] = useState<SolutionState[]>([]);
+    const [timers, setTimers] = useState<number[]>([]);
     const style = getPopupStyle(day, prevDayRef.current, 'start', popupGridRef.current);
     const visualizedDay = day ?? prevDayRef.current ?? 0;
     const { workerService, inputService } = useContext(ContainerContext);
 
-    // After the initial render, turn on transitions and enlarge popup.
+    // After the initial render, turn on transitions, enlarge popup, reset solve states.
     useEffect(() => {
         if (!popupRef.current) { return; }
         popupRef.current.classList.remove('notransition');
@@ -31,6 +35,12 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
         }
         Object.assign(popupRef.current.style, getPopupStyle(day, prevDayRef.current, 'end', popupGridRef.current));
         prevDayRef.current = day;
+
+        // Clear previous state on open
+        if (day) {
+            setSolutionStates([]);
+            setTimers([]);
+        }
     }, [day]);
 
     // Close popup when user clicks outside or an empty inside area
@@ -43,6 +53,7 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
             const isEmptyInsideClick = e.target === popupRef.current || e.target === popupGridRef.current;
             const isSelectionEvent = !!window.getSelection()?.toString();
             if (!isSelectionEvent && (isOutsideClick || isEmptyInsideClick)) {
+                cancelOngoingRef.current && cancelOngoingRef.current();
                 onClosed();
             }
         }
@@ -50,16 +61,44 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
         return () => document.removeEventListener('click', onDocumentClick);
     }, [day, onClosed]);
 
+    /** Run solution in the background and turn on timer. */
     const onSolveClick = async (day: EventDay | null) => {
         if (!day) { return; }
         const input = await inputService.getInput(day);
-        if (input === null) { return; }
+        if (input === null) {
+            console.error(`Could not load input for day ${day}!`);
+            return;
+        }
 
-        workerService.solveAsync(day, input).pipe(tap(x => {
-            if (x.type !== 'progress') {
-                console.log(x);
-            }
-        })).subscribe();
+        const solutionStates: SolutionState[] = [];
+        const timers: number[] = [0];
+        let startTime = performance.now();
+
+        const timerInterval = setInterval(() => {
+            timers[timers.length - 1] = Math.floor(performance.now() - startTime);
+            setTimers([...timers]);
+        }, 50);
+
+        const subscription = workerService.solveAsync(day, input).subscribe({
+            next: state => {
+                if (state.type === 'result' || state.type === 'error') {
+                    startTime = performance.now();
+                    timers.push(0);
+                }
+
+                if (solutionStates.length < state.part) {
+                    solutionStates.push(state);
+                } else {
+                    solutionStates[state.part - 1] = state;
+                }
+                setSolutionStates([...solutionStates]);
+            },
+            complete: () => clearInterval(timerInterval)
+        });
+        cancelOngoingRef.current = () => {
+            subscription.unsubscribe();
+            clearInterval(timerInterval);
+        };
     };
 
     return (<div key={day} ref={popupRef} className={'popup notransition' + (day ? '' : ' open')} style={style}>
@@ -72,17 +111,24 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
             </div>
             <div className='spacer'></div>
 
-            {Array(2).fill(0).map((_, partIndex) => (<React.Fragment key={partIndex}>
-                <div className='popup-part-label fade'>
-                    Part {partIndex + 1}:
-                </div>
-                <div className='popup-part-result fade'>
-                    849272349
-                </div>
-                <div className='popup-part-performance fade'>
-                    123 ms 🕑
-                </div>
-            </React.Fragment>))}
+            {Array(2).fill(0).map((_, partIndex) => {
+                const solutionState = solutionStates[partIndex] as SolutionState | undefined;
+                const result = solutionState?.type === 'result' ? solutionState.result : null;
+                const error = solutionState?.type === 'error' ? solutionState.message : null;
+                const timeMs = (solutionState && solutionState.type !== 'progress') ? solutionState.timeMs : timers[partIndex] ?? null;
+
+                return (<React.Fragment key={partIndex}>
+                    <div className='popup-part-label fade'>
+                        Part {partIndex + 1}:
+                    </div>
+                    <div className='popup-part-result fade'>
+                        {result ?? error}
+                    </div>
+                    <div className='popup-part-performance fade'>
+                        <Timer valueMs={timeMs} />
+                    </div>
+                </React.Fragment>);
+            })}
 
             <div style={{ height: '20px' }}></div>
             <div className='popup-part-footer fade'>
