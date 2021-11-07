@@ -5,6 +5,7 @@
         "cright",
         "linebreak",
         "notransition",
+        "unsub",
         "webfonts"
     ],
     "files.exclude": {

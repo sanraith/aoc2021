@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { clearInterval, setInterval } from 'timers';
 import './App.css';
 import Calendar from './calendar/Calendar';
+import { container, ContainerContext } from './Container';
 
 const clocks = ['🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚', '🕛', '🕧', '🕜', '🕝', '🕞', '🕟', '🕠', '🕡', '🕢', '🕣', '🕤', '🕥', '🕦'];
 
@@ -25,10 +26,12 @@ function App(): JSX.Element {
     }, []);
 
     return (
-        <div className="App">
-            <Calendar />
-            <span>{clock}</span>
-        </div>
+        <ContainerContext.Provider value={container}>
+            <div className="App">
+                <Calendar />
+                <span>{clock}</span>
+            </div>
+        </ContainerContext.Provider>
     );
 }
 

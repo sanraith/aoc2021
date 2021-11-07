@@ -1,6 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
+import { ContainerContext } from '../Container';
 import solutionManager from '../core/solutionManager';
 import CalendarCell from './CalendarCell';
+import { tap } from 'rxjs/operators';
 import { EventDay, getPopupStyle, openPuzzleDescriptionInNewTab, openSourceCodeInNewTab } from './calendarHelpers';
 
 interface PopupProps {
@@ -15,6 +17,8 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
     const popupRef = useRef<HTMLDivElement>(null);
     const popupGridRef = useRef<HTMLDivElement>(null);
     const style = getPopupStyle(day, prevDayRef.current, 'start', popupGridRef.current);
+    const visualizedDay = day ?? prevDayRef.current ?? 0;
+    const workerService = useContext(ContainerContext).workerService;
 
     // After the initial render, turn on transitions and enlarge popup.
     useEffect(() => {
@@ -46,7 +50,17 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
         return () => document.removeEventListener('click', onDocumentClick);
     }, [day, onClosed]);
 
-    const visualizedDay = day ?? prevDayRef.current ?? 0;
+    const onSolveClick = (day: EventDay | null) => {
+        if (!day) { return; }
+
+        for (const part in [1, 2] as const) {
+            workerService.solveAsync(day, part).pipe(tap(x => {
+                if (x.type !== 'progress') {
+                    console.log(x);
+                }
+            })).subscribe();
+        }
+    };
 
     return (<div key={day} ref={popupRef} className={'popup notransition' + (day ? '' : ' open')} style={style}>
         <div ref={popupGridRef} className='popup-grid'>
@@ -85,9 +99,9 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
                         <span>📜</span> Puzzle
                     </button>
                 </div>
-                <button className='primary' onClick={() => alert('Not implemented yet.')}>
+                <button className='primary' onClick={() => onSolveClick(day)}>
                     📈 Solve
-                </button >
+                </button>
             </div>
             <div style={{ height: '10px' }}></div>
         </div>
