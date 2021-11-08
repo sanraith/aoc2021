@@ -3,7 +3,7 @@ import { ContainerContext } from '../services/container';
 import solutionManager from '../core/solutionManager';
 import CalendarCell from './CalendarCell';
 import { EventDay, getPopupStyle, openPuzzleDescriptionInNewTab, openSourceCodeInNewTab } from './calendarHelpers';
-import { SolutionState } from '../core/solutionProgress';
+import { SolutionState } from '../core/solutionState';
 import { Timer } from './Timer';
 
 const solutionsByDay = solutionManager.getSolutionsByDay();

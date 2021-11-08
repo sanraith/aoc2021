@@ -1,6 +1,6 @@
 import { lastValueFrom, Observable, Subscriber } from 'rxjs';
 import { Stopwatch } from 'ts-stopwatch';
-import { SolutionError, SolutionProgress, SolutionResult, SolutionState } from './solutionProgress';
+import { SolutionError, SolutionProgress, SolutionResult, SolutionState } from './solutionState';
 
 interface CurrentSolution {
     subscriber: Subscriber<SolutionState>;
