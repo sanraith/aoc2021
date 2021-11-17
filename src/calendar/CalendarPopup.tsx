@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { ContainerContext } from '../services/container';
 import solutionManager from '../core/solutionManager';
 import CalendarCell from './CalendarCell';
@@ -16,12 +16,50 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
     const prevDayRef = useRef<number | null>(null);
     const popupRef = useRef<HTMLDivElement>(null);
     const popupGridRef = useRef<HTMLDivElement>(null);
-    const cancelOngoingRef = useRef<() => void>();
-    const [solutionStates, setSolutionStates] = useState<SolutionState[]>([]);
-    const [timers, setTimers] = useState<number[]>([]);
     const style = getPopupStyle(day, prevDayRef.current, 'start', popupGridRef.current);
     const visualizedDay = day ?? prevDayRef.current ?? 0;
-    const { workerService, inputService } = useContext(ContainerContext);
+
+    const { runtimeSolutionService } = useContext(ContainerContext);
+    const [solutionStates, setSolutionStates] = useState<[SolutionState, SolutionState] | null>(null);
+    const [elapsedTimes, setElapsedTimes] = useState<(number | null)[]>([]);
+    /** Stops the timer that updates elapsed time. */
+    const stopTimer = useRef<() => void>();
+    /** Unsubscribes from solution state updates. */
+    const unsubSolutionRef = useRef<() => void>();
+    const runtimeSolution = day ? runtimeSolutionService.runtimeSolutions.get(day) : null;
+    const isOngoing = runtimeSolution?.states.some(x => x.kind === 'progress');
+
+    /** Clears subscriptions and timers. */
+    const cleanupSubscriptions = useCallback(() => {
+        unsubSolutionRef.current && unsubSolutionRef.current();
+        stopTimer.current && stopTimer.current();
+    }, []);
+
+    /** Run solution in the background and turn on timer. */
+    const onSolveClick = useCallback(() => {
+        setElapsedTimes([null, null]);
+        runtimeSolution?.start();
+    }, [runtimeSolution]);
+
+    /** Cancels currently running solution. */
+    const onCancelClick = useCallback(() => runtimeSolution?.cancel(), [runtimeSolution]);
+
+    /** Turns the timer on if the solution is in progress, off otherwise. */
+    const startStopTimerIfNeeded = useCallback(() => {
+        if (!runtimeSolution) { return; }
+        if (!stopTimer.current && runtimeSolution.states.some(x => x.kind === 'progress')) {
+            const interval = setInterval(() => {
+                const currentTime = new Date().getTime();
+                setElapsedTimes(runtimeSolution.startTimes.map(t => t === null ? null : currentTime - t));
+            }, 50);
+            stopTimer.current = () => {
+                clearInterval(interval);
+                stopTimer.current = undefined;
+            };
+        } else if (stopTimer.current && runtimeSolution.states.every(x => x.kind !== 'progress')) {
+            stopTimer.current();
+        }
+    }, [runtimeSolution]);
 
     // After the initial render, turn on transitions, enlarge popup, reset solve states.
     useEffect(() => {
@@ -36,11 +74,19 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
         prevDayRef.current = day;
 
         // Clear previous state on open
-        if (day) {
-            setSolutionStates([]);
-            setTimers([]);
+        if (day && runtimeSolution) {
+            // Cancel previous subscriptions
+            cleanupSubscriptions();
+
+            // Init new subscriptions
+            startStopTimerIfNeeded();
+            unsubSolutionRef.current = runtimeSolution.onChange.subscribe(() => {
+                setSolutionStates([...runtimeSolution.states]);
+                startStopTimerIfNeeded();
+            });
+            setSolutionStates([...runtimeSolution.states]);
         }
-    }, [day]);
+    }, [cleanupSubscriptions, day, runtimeSolution, startStopTimerIfNeeded]);
 
     // Close popup when user clicks outside or an empty inside area
     useEffect(() => {
@@ -52,53 +98,13 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
             const isEmptyInsideClick = e.target === popupRef.current || e.target === popupGridRef.current;
             const isSelectionEvent = !!window.getSelection()?.toString();
             if (!isSelectionEvent && (isOutsideClick || isEmptyInsideClick)) {
-                cancelOngoingRef.current && cancelOngoingRef.current();
+                cleanupSubscriptions();
                 onClosed();
             }
         }
         document.addEventListener('click', onDocumentClick);
         return () => document.removeEventListener('click', onDocumentClick);
-    }, [day, onClosed]);
-
-    /** Run solution in the background and turn on timer. */
-    const onSolveClick = async (day: EventDay | null) => {
-        if (!day) { return; }
-        const input = await inputService.getInput(day);
-        if (input === null) {
-            console.error(`Could not load input for day ${day}!`);
-            return;
-        }
-
-        const solutionStates: SolutionState[] = [];
-        const timers: number[] = [0];
-        let startTime = performance.now();
-
-        const timerInterval = setInterval(() => {
-            timers[timers.length - 1] = Math.floor(performance.now() - startTime);
-            setTimers([...timers]);
-        }, 50);
-
-        const subscription = workerService.solveAsync(day, input).subscribe({
-            next: state => {
-                if (state.type === 'result' || state.type === 'error') {
-                    startTime = performance.now();
-                    timers.push(0);
-                }
-
-                if (solutionStates.length < state.part) {
-                    solutionStates.push(state);
-                } else {
-                    solutionStates[state.part - 1] = state;
-                }
-                setSolutionStates([...solutionStates]);
-            },
-            complete: () => clearInterval(timerInterval)
-        });
-        cancelOngoingRef.current = () => {
-            subscription.unsubscribe();
-            clearInterval(timerInterval);
-        };
-    };
+    }, [cleanupSubscriptions, day, onClosed]);
 
     return (<div key={day} ref={popupRef} className={'popup notransition' + (day ? '' : ' open')} style={style}>
         <div ref={popupGridRef} className='popup-grid'>
@@ -111,17 +117,29 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
             <div className='spacer'></div>
 
             {Array(2).fill(0).map((_, partIndex) => {
-                const solutionState = solutionStates[partIndex] as SolutionState | undefined;
-                const result = solutionState?.type === 'result' ? solutionState.result : null;
-                const error = solutionState?.type === 'error' ? solutionState.message : null;
-                const timeMs = (solutionState && solutionState.type !== 'progress') ? solutionState.timeMs : timers[partIndex] ?? null;
+                const solutionState = solutionStates ? solutionStates[partIndex] : null;
+                let result: string | null = null;
+                let timeMs = elapsedTimes[partIndex] ?? null;
+                switch (solutionState?.kind) {
+                    case 'result':
+                        result = solutionState.result;
+                        timeMs = solutionState.timeMs;
+                        break;
+                    case 'error':
+                        result = solutionState.message;
+                        timeMs = solutionState.timeMs;
+                        break;
+                    case 'not_started': result = '-'; break;
+                    case 'progress': result = 'Working on it...'; break;
+                    case 'canceled': result = 'Canceled.'; break;
+                }
 
                 return (<React.Fragment key={partIndex}>
                     <div className='popup-part-label fade'>
                         Part {partIndex + 1}:
                     </div>
                     <div className='popup-part-result fade'>
-                        {result ?? error}
+                        {result}
                     </div>
                     <div className='popup-part-performance fade'>
                         <Timer valueMs={timeMs} />
@@ -144,8 +162,8 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
                         <span>📜</span> Puzzle
                     </button>
                 </div>
-                <button className='primary' onClick={() => onSolveClick(day)}>
-                    📈 Solve
+                <button className={'primary' + (isOngoing ? ' cancel' : '')} onClick={() => isOngoing ? onCancelClick() : onSolveClick()}>
+                    {isOngoing ? '❌ Cancel' : '📈 Solve'}
                 </button>
             </div>
             <div style={{ height: '10px' }}></div>

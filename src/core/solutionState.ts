@@ -1,7 +1,15 @@
-export type SolutionState = SolutionResult | SolutionError | SolutionProgress;
+export type SolutionState = SolutionNotStarted | SolutionProgress | SolutionResult | SolutionError | SolutionCanceled;
+
+export class SolutionNotStarted {
+    kind = 'not_started' as const;
+
+    constructor(
+        public part: number
+    ) { }
+}
 
 export class SolutionProgress {
-    type = 'progress' as const;
+    kind = 'progress' as const;
 
     constructor(
         public part: number,
@@ -11,7 +19,7 @@ export class SolutionProgress {
 }
 
 export class SolutionResult {
-    type = 'result' as const;
+    kind = 'result' as const;
 
     constructor(
         public part: number,
@@ -22,11 +30,20 @@ export class SolutionResult {
 }
 
 export class SolutionError {
-    type = 'error' as const;
+    kind = 'error' as const;
 
     constructor(
         public part: number,
         public message: string,
+        public timeMs: number = 0
+    ) { }
+}
+
+export class SolutionCanceled {
+    kind = 'canceled' as const;
+
+    constructor(
+        public part: number,
         public timeMs: number = 0
     ) { }
 }

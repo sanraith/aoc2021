@@ -32,7 +32,7 @@ export default abstract class SolutionBase {
 
     async solveAsync(part: 1 | 2): Promise<string | null> {
         const state = await lastValueFrom(this.solveWithProgress(part));
-        switch (state.type) {
+        switch (state.kind) {
             case 'result': return state.result;
             default: return null;
         }

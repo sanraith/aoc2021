@@ -1,34 +1,45 @@
+import { Subscription } from 'rxjs';
 import { EventDispatcher, IEvent } from 'strongly-typed-events';
 import { SolutionInfo } from '../core/solutionInfo';
 import solutionManager from '../core/solutionManager';
-import { SolutionState } from '../core/solutionState';
+import { SolutionCanceled, SolutionNotStarted, SolutionProgress, SolutionState } from '../core/solutionState';
 import InputService from './input.service';
 import WorkerService from './worker.service';
 
 
 interface RuntimeSolution {
     info: SolutionInfo,
-    states: [SolutionState | null, SolutionState | null];
-    onChange: IEvent<RuntimeSolution, string>;
+    states: [SolutionState, SolutionState];
+    startTimes: [number | null, number | null];
+
+    onChange: IEvent<RuntimeSolution, void>;
     start: () => Promise<void>;
     cancel: () => void;
 }
 
+interface RuntimeSolutionInternal extends RuntimeSolution {
+    onChange: EventDispatcher<RuntimeSolutionInternal, void>;
+    subscription: Subscription | null;
+}
+
 export default class RuntimeSolutionService {
 
-    runtimeSolutions = new Map<number, RuntimeSolution>();
+    private _runtimeSolutions = new Map<number, RuntimeSolutionInternal>();
+    get runtimeSolutions(): Map<number, RuntimeSolution> { return this._runtimeSolutions; }
 
     constructor(
         private inputService: InputService,
         private workerService: WorkerService
     ) {
         for (const [day, info] of solutionManager.getSolutionsByDay().entries()) {
-            this.runtimeSolutions.set(day, {
+            this._runtimeSolutions.set(day, {
                 info: info,
-                states: [null, null],
-                onChange: new EventDispatcher<RuntimeSolution, string>(),
+                states: [new SolutionNotStarted(1), new SolutionNotStarted(2)],
+                startTimes: [null, null],
+                onChange: new EventDispatcher<RuntimeSolutionInternal, void>(),
                 start: () => this.start(day),
-                cancel: () => { }
+                cancel: () => this.cancel(day),
+                subscription: null
             });
         }
     }
@@ -37,16 +48,40 @@ export default class RuntimeSolutionService {
         const input = await this.inputService.getInput(day);
         if (!input) { throw new Error(`Could not find input for day ${day}!`); }
 
-        const runtimeState = this.runtimeSolutions.get(day);
-        if (!runtimeState) { throw new Error(`Could not find runtimeState for day ${day}!`); }
+        const runtimeSolution = this._runtimeSolutions.get(day);
+        if (!runtimeSolution) { throw new Error(`Could not find runtimeState for day ${day}!`); }
 
-        // TODO unsub, cancel
-        this.workerService.solveAsync(day, input).subscribe({
+        if (runtimeSolution.subscription) {
+            this.cancel(day);
+        }
+
+        runtimeSolution.startTimes = [new Date().getTime(), null];
+        runtimeSolution.states = [new SolutionProgress(1, 0), new SolutionProgress(2, 0)];
+        runtimeSolution.onChange.dispatch(runtimeSolution);
+
+        runtimeSolution.subscription = this.workerService.solveAsync(day, input).subscribe({
             next: state => {
-                runtimeState.states[state.part] = state;
-                (runtimeState.onChange as EventDispatcher<RuntimeSolution, string>).dispatch(runtimeState, 'update');
+                if (state.kind === 'result' && state.part === 1) {
+                    runtimeSolution.startTimes[1] = new Date().getTime();
+                }
+                runtimeSolution.states[state.part - 1] = state;
+                runtimeSolution.onChange.dispatch(runtimeSolution);
             },
-            complete: () => (runtimeState.onChange as EventDispatcher<RuntimeSolution, string>).dispatch(runtimeState, 'update')
+            complete: () => {
+                runtimeSolution.subscription = null;
+            }
         });
+    }
+
+    private cancel(day: number): void {
+        const runtimeSolution = this._runtimeSolutions.get(day);
+        if (!runtimeSolution) { throw new Error(`Could not find runtimeState for day ${day}!`); }
+
+        runtimeSolution.states = runtimeSolution.states.map(s =>
+            s.kind === 'progress' ? new SolutionCanceled(s.part, s.timeMs) : s
+        ) as [SolutionState, SolutionState];
+        runtimeSolution.onChange.dispatch(runtimeSolution);
+
+        runtimeSolution.subscription?.unsubscribe();
     }
 }

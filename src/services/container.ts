@@ -6,15 +6,15 @@ import WorkerService from './worker.service';
 export interface IContainer {
     workerService: WorkerService;
     inputService: InputService;
-    solutionStateService: RuntimeSolutionService;
+    runtimeSolutionService: RuntimeSolutionService;
 }
 
 const inputService = new InputService();
 const workerService = new WorkerService();
-const solutionStateService = new RuntimeSolutionService(inputService, workerService);
+const runtimeSolutionService = new RuntimeSolutionService(inputService, workerService);
 
 export const container: IContainer = {
-    workerService, inputService, solutionStateService
+    workerService, inputService, runtimeSolutionService
 };
 
 export const ContainerContext = React.createContext<IContainer>(container);

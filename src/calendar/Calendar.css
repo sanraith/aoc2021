@@ -153,6 +153,10 @@
 }
 .popup button.primary {
     background-color: greenyellow;
+    width: 150px;
+}
+.popup button.cancel {
+    background-color: orange;
 }
 .popup button.secondary {
     background-color: lightblue;
