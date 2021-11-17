@@ -29,10 +29,11 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
     const runtimeSolution = day ? runtimeSolutionService.runtimeSolutions.get(day) : null;
     const isOngoing = runtimeSolution?.states.some(x => x.kind === 'progress');
 
-    /** Clears subscriptions and timers. */
+    /** Clear subscriptions and timers. */
     const cleanupSubscriptions = useCallback(() => {
         unsubSolutionRef.current && unsubSolutionRef.current();
         stopTimer.current && stopTimer.current();
+        setElapsedTimes([null, null]);
     }, []);
 
     /** Run solution in the background and turn on timer. */
@@ -85,12 +86,8 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
                 startStopTimerIfNeeded();
             });
             setSolutionStates([...runtimeSolution.states]);
+            document.addEventListener('click', onDocumentClick);
         }
-    }, [cleanupSubscriptions, day, runtimeSolution, startStopTimerIfNeeded]);
-
-    // Close popup when user clicks outside or an empty inside area
-    useEffect(() => {
-        if (!day) { return; }
 
         function onDocumentClick(e: MouseEvent) {
             const calendar = document.getElementById('calendar')!;
@@ -102,9 +99,9 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
                 onClosed();
             }
         }
-        document.addEventListener('click', onDocumentClick);
+
         return () => document.removeEventListener('click', onDocumentClick);
-    }, [cleanupSubscriptions, day, onClosed]);
+    }, [cleanupSubscriptions, day, onClosed, runtimeSolution, startStopTimerIfNeeded]);
 
     return (<div key={day} ref={popupRef} className={'popup notransition' + (day ? '' : ' open')} style={style}>
         <div ref={popupGridRef} className='popup-grid'>
@@ -130,7 +127,11 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
                         timeMs = solutionState.timeMs;
                         break;
                     case 'not_started': result = '-'; break;
-                    case 'progress': result = 'Working on it...'; break;
+                    case 'progress': {
+                        const percentage = solutionState.progress * 100;
+                        result = 'Working on it... ' + (percentage < 0.01 ? '' : percentage.toFixed(0) + ' %');
+                        break;
+                    }
                     case 'canceled': result = 'Canceled.'; break;
                 }
 
@@ -155,11 +156,11 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
                     </button>
                     {/* TODO Change link from dev to main */}
                     <button className='secondary' onClick={() => openSourceCodeInNewTab(day)}>
-                        <span>💻</span> Source
+                        <span>📜</span> Source
                     </button>
                     {/* TODO Change link from 2020 to 2021 */}
                     <button className='secondary' onClick={() => openPuzzleDescriptionInNewTab(day)}>
-                        <span>📜</span> Puzzle
+                        <span>🎄</span> Puzzle
                     </button>
                 </div>
                 <button className={'primary' + (isOngoing ? ' cancel' : '')} onClick={() => isOngoing ? onCancelClick() : onSolveClick()}>

@@ -13,6 +13,7 @@ export class Day22 extends SolutionBase {
     protected part1(): number {
         const decks = this.parseDecks();
         this.playGame(decks, { isRecursive: false });
+        this.part2();
         return this.calculateScore(decks);
     }
 
