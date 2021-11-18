@@ -43,6 +43,10 @@ export class Day01 extends SolutionBase {
                 for (let k = j + 1; k < numbers.length; k++) {
                     const c = numbers[k];
                     checks.push(i, j, k);
+
+                    // Fake work
+                    for (let t = 0; t < 1000; t++);
+
                     if (a + b + c === 2020) {
                         this.visualizationData = { numbers, i, j, k, checks };
                         return a * b * c;

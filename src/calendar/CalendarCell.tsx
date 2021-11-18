@@ -37,14 +37,24 @@ export default function CalendarCell({ day, hasSolution, isCopy, onCellClick }: 
     if (isDecemberDay) {
         const cellId = calendarCellId(day);
         const isEventDay = day <= 25 && !isCopy;
-        return (
-            <div id={isCopy ? undefined : cellId}
-                className={'calendar-cell' + (isEventDay && hasSolution ? ' pointer' : '')}
-                onClick={() => isEventDay && onCellClick && onCellClick(day)}>
+        if (isCopy) {
+            return (<div className="calendar-cell">
                 <span>{day}</span>
-                <span style={{ fontSize: '10px', marginLeft: '-40px', display: 'inline-block' }}>{progress ? progress + ' %' : ''}</span>
-            </div >
-        );
+            </div >);
+        } else {
+            return (<div className='calendar-cell-container' style={{ position: 'relative' }}>
+                <div id={isCopy ? undefined : cellId}
+                    className={'calendar-cell' + (isEventDay && hasSolution ? ' pointer' : '')}
+                    onClick={() => isEventDay && onCellClick && onCellClick(day)}>
+                    <span>{day}</span>
+                </div >
+                <div className='progress background' style={{
+                    width: progress === null ? 0 : (100 - progress) + '%',
+                    left: progress === null ? 0 : progress + '%'
+                }}>&nbsp;</div>
+                <div className='progress' style={{ width: progress == null ? 0 : progress + '%' }}>&nbsp;</div>
+            </div>);
+        }
     } else {
         return (<div className="calendar-cell gray"><span></span></div>);
     }

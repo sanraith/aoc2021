@@ -31,7 +31,10 @@ export default class WorkerService {
             queuedWork.subscriber = subscriber;
 
             this.getAvailableWorkerAsync().then(workerInfo => {
-                if (queuedWork.isTerminated) { return; }
+                if (queuedWork.isTerminated) {
+                    this.makeWorkerAvailable(workerInfo);
+                    return;
+                }
 
                 queuedWork.workerInfo = workerInfo;
                 const worker = workerInfo.worker;
@@ -40,7 +43,6 @@ export default class WorkerService {
                     if (data.part > 0) {
                         subscriber.next(data);
                     } else {
-                        this.makeWorkerAvailable(workerInfo);
                         subscriber.complete();
                     }
                 };
@@ -66,6 +68,7 @@ export default class WorkerService {
     }
 
     private makeWorkerAvailable(workerInfo: WorkerInfo): void {
+        workerInfo.worker.onmessage = null;
         workerInfo.isAvailable = true;
         this._onWorkerAvailable.dispatch(this, workerInfo);
     }

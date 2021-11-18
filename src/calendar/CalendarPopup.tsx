@@ -92,9 +92,8 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
         function onDocumentClick(e: MouseEvent) {
             const calendar = document.getElementById('calendar')!;
             const isOutsideClick = popupRef.current && !popupRef.current.contains(e.target as Node) && !calendar.contains(e.target as Node);
-            const isEmptyInsideClick = e.target === popupRef.current || e.target === popupGridRef.current;
             const isSelectionEvent = !!window.getSelection()?.toString();
-            if (!isSelectionEvent && (isOutsideClick || isEmptyInsideClick)) {
+            if (!isSelectionEvent && isOutsideClick) {
                 cleanupSubscriptions();
                 onClosed();
             }
@@ -103,71 +102,74 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
         return () => document.removeEventListener('click', onDocumentClick);
     }, [cleanupSubscriptions, day, onClosed, runtimeSolution, startStopTimerIfNeeded]);
 
-    return (<div key={day} ref={popupRef} className={'popup notransition' + (day ? '' : ' open')} style={style}>
-        <div ref={popupGridRef} className='popup-grid'>
-            <div className='popup-number'>
-                <CalendarCell day={visualizedDay} isCopy={true} />
-            </div>
-            <div className='popup-title fade'>
-                {solutionsByDay.get(visualizedDay)?.title}
-            </div>
-            <div className='spacer'></div>
+    return (<React.Fragment>
+        <div className={'modal-background' + (day ? ' open' : '')} style={{ display: day ? 'block' : 'none' }}>&nbsp;</div>
+        <div key={day} ref={popupRef} className={'popup notransition' + (day ? '' : ' open')} style={style}>
+            <div ref={popupGridRef} className='popup-grid'>
+                <div className='popup-number'>
+                    <CalendarCell day={visualizedDay} isCopy={true} />
+                </div>
+                <div className='popup-title fade'>
+                    {solutionsByDay.get(visualizedDay)?.title}
+                </div>
+                <div className='spacer'></div>
 
-            {Array(2).fill(0).map((_, partIndex) => {
-                const solutionState = solutionStates ? solutionStates[partIndex] : null;
-                let result: string | null = null;
-                let timeMs = elapsedTimes[partIndex] ?? null;
-                switch (solutionState?.kind) {
-                    case 'result':
-                        result = solutionState.result;
-                        timeMs = solutionState.timeMs;
-                        break;
-                    case 'error':
-                        result = solutionState.message;
-                        timeMs = solutionState.timeMs;
-                        break;
-                    case 'not_started': result = '-'; break;
-                    case 'progress': {
-                        const percentage = solutionState.progress * 100;
-                        result = 'Working on it... ' + (percentage < 0.01 ? '' : percentage.toFixed(0) + ' %');
-                        break;
+                {Array(2).fill(0).map((_, partIndex) => {
+                    const solutionState = solutionStates ? solutionStates[partIndex] : null;
+                    let result: string | null = null;
+                    let timeMs = elapsedTimes[partIndex] ?? null;
+                    switch (solutionState?.kind) {
+                        case 'result':
+                            result = solutionState.result;
+                            timeMs = solutionState.timeMs;
+                            break;
+                        case 'error':
+                            result = solutionState.message;
+                            timeMs = solutionState.timeMs;
+                            break;
+                        case 'not_started': result = '-'; break;
+                        case 'progress': {
+                            const percentage = solutionState.progress * 100;
+                            result = 'Working on it... ' + (percentage < 0.01 ? '' : percentage.toFixed(0) + ' %');
+                            break;
+                        }
+                        case 'canceled': result = 'Canceled.'; break;
                     }
-                    case 'canceled': result = 'Canceled.'; break;
-                }
 
-                return (<React.Fragment key={partIndex}>
-                    <div className='popup-part-label fade'>
-                        Part {partIndex + 1}:
-                    </div>
-                    <div className='popup-part-result fade'>
-                        {result}
-                    </div>
-                    <div className='popup-part-performance fade'>
-                        <Timer valueMs={timeMs} />
-                    </div>
-                </React.Fragment>);
-            })}
+                    return (<React.Fragment key={partIndex}>
+                        <div className='popup-part-label fade'>
+                            Part {partIndex + 1}:
+                        </div>
+                        <div className='popup-part-result fade'>
+                            {result}
+                        </div>
+                        <div className='popup-part-performance fade'>
+                            <Timer valueMs={timeMs} />
+                        </div>
+                    </React.Fragment>);
+                })}
 
-            <div style={{ height: '20px' }}></div>
-            <div className='popup-part-footer fade'>
-                <div className='collapsible'>
-                    <button className='secondary' onClick={() => alert('Not implemented yet.')}>
-                        <span>💽</span> Input
-                    </button>
-                    {/* TODO Change link from dev to main */}
-                    <button className='secondary' onClick={() => openSourceCodeInNewTab(day)}>
-                        <span>📜</span> Source
-                    </button>
-                    {/* TODO Change link from 2020 to 2021 */}
-                    <button className='secondary' onClick={() => openPuzzleDescriptionInNewTab(day)}>
-                        <span>🎄</span> Puzzle
+                <div style={{ height: '20px' }}></div>
+                <div className='popup-part-footer fade'>
+                    <div className='collapsible'>
+                        <button className='secondary' onClick={() => alert('Not implemented yet.')}>
+                            <span>💽</span> Input
+                        </button>
+                        {/* TODO Change link from dev to main */}
+                        <button className='secondary' onClick={() => openSourceCodeInNewTab(day)}>
+                            <span>📜</span> Source
+                        </button>
+                        {/* TODO Change link from 2020 to 2021 */}
+                        <button className='secondary' onClick={() => openPuzzleDescriptionInNewTab(day)}>
+                            <span>🎄</span> Puzzle
+                        </button>
+                    </div>
+                    <button className={'primary' + (isOngoing ? ' cancel' : '')} onClick={() => isOngoing ? onCancelClick() : onSolveClick()}>
+                        {isOngoing ? '❌ Cancel' : '📈 Solve'}
                     </button>
                 </div>
-                <button className={'primary' + (isOngoing ? ' cancel' : '')} onClick={() => isOngoing ? onCancelClick() : onSolveClick()}>
-                    {isOngoing ? '❌ Cancel' : '📈 Solve'}
-                </button>
+                <div style={{ height: '10px' }}></div>
             </div>
-            <div style={{ height: '10px' }}></div>
         </div>
-    </div>);
+    </React.Fragment >);
 }
