@@ -82,14 +82,23 @@
     z-index: 9999;
     visibility: hidden;
     box-shadow: rgba(0, 0, 0, 0) 0px 19px 38px, rgba(0, 0, 0, 0) 0px 15px 12px;
-
-    transition: all var(--open-duration) ease;
     overflow: hidden;
+    transition: all var(--open-duration) ease;
 }
 
-.popup.open {
+.popup-enter {
+    visibility: visible;
+}
+.popup-enter-done {
+    visibility: visible;
     box-shadow: rgba(0, 0, 0, 0.4) 0px 19px 38px,
         rgba(0, 0, 0, 0.32) 0px 15px 12px;
+}
+.popup-exit {
+    visibility: visible;
+}
+.popup-exit-done {
+    visibility: hidden;
 }
 
 .popup .calendar-cell {
@@ -104,11 +113,11 @@
     transition: font-size var(--open-duration) ease;
 }
 
-.popup.open .calendar-cell span {
+.popup.popup-enter-done .calendar-cell span {
     font-size: 50px;
 }
 
-.popup.open .calendar-cell {
+.popup.popup-enter-done .calendar-cell {
     width: 75px;
 }
 
@@ -133,11 +142,11 @@
     width: calc(var(--width) - var(--margin) * 2);
     font-size: 22px;
 }
-.popup.open .popup-grid {
+.popup.popup-enter-done .popup-grid {
     margin: var(--margin);
     width: calc(var(--width) - var(--margin) * 2);
 }
-.popup.open .fade {
+.popup-enter-done .fade {
     opacity: 1;
 }
 .spacer {

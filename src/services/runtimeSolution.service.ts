@@ -7,7 +7,7 @@ import InputService from './input.service';
 import WorkerService from './worker.service';
 
 
-interface RuntimeSolution {
+export interface RuntimeSolution {
     info: SolutionInfo,
     states: [SolutionState, SolutionState];
     startTimes: [number | null, number | null];

@@ -13,34 +13,22 @@ export function px(x: number): string {
     return x + 'px';
 }
 
-export function getPopupStyle(
-    day: number | null, prevDay: number | null, state: 'start' | 'end',
-    popupGrid: HTMLDivElement | null
+export function getPopupRect(
+    day: number,
+    state: 'closed' | 'opened',
+    popupGrid: HTMLDivElement
 ): React.CSSProperties {
-    // Skip invalid case.
-    if (!day && !prevDay) { return { visibility: 'hidden' }; }
-
-    // If we switch between cells, pretend that we closed the previous one.
-    if (day && prevDay) { prevDay = null; }
-
-    const cellId = day ? calendarCellId(day) : calendarCellId(prevDay as number);
+    const cellId = calendarCellId(day);
     const cell = document.getElementById(cellId) as HTMLDivElement;
     const cellRect = cell.getBoundingClientRect();
-    const isOpenDirection = state === 'start' && day || state === 'end' && prevDay;
-    if (isOpenDirection) {
+    if (state === 'closed') {
         return {
-            visibility: 'hidden',
             left: px(cellRect.x),
             top: px(cellRect.y),
             width: px(cellRect.width),
             height: px(cellRect.height)
         };
     } else {
-        if (!popupGrid) {
-            console.log('This should not have happened...');
-            return {};
-        }
-
         const popupGridMargin = parseInt(getComputedStyle(popupGrid).getPropertyValue('--margin')?.match(/\d+/g)![0]);
         const popupGridRect = popupGrid.getBoundingClientRect();
         const { vw/*, vh*/ } = getViewportSize();
@@ -50,7 +38,6 @@ export function getPopupStyle(
         const top = 100;//(vh - height) / 2;
 
         return {
-            visibility: 'visible',
             width: px(width),
             height: px(height),
             left: px(left),
