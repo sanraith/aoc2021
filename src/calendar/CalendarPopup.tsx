@@ -87,6 +87,7 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
             });
             setSolutionStates([...runtimeSolution.states]);
             document.addEventListener('click', onDocumentClick);
+            window.addEventListener('resize', onDocumentResize);
         }
 
         function onDocumentClick(e: MouseEvent) {
@@ -99,11 +100,18 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
             }
         }
 
-        return () => document.removeEventListener('click', onDocumentClick);
+        function onDocumentResize() {
+            popupRef.current && Object.assign(popupRef.current.style, getPopupStyle(day, prevDayRef.current, 'end', popupGridRef.current));
+        }
+
+        return () => {
+            document.removeEventListener('click', onDocumentClick);
+            window.removeEventListener('resize', onDocumentResize);
+        };
     }, [cleanupSubscriptions, day, onClosed, runtimeSolution, startStopTimerIfNeeded]);
 
     return (<React.Fragment>
-        <div className={'modal-background' + (day ? ' open' : '')} style={{ display: day ? 'block' : 'none' }}>&nbsp;</div>
+        <div className={'modal-background' + (day ? ' open' : '')} style={{ pointerEvents: day ? 'auto' : 'none' }}>&nbsp;</div>
         <div key={day} ref={popupRef} className={'popup notransition' + (day ? '' : ' open')} style={style}>
             <div ref={popupGridRef} className='popup-grid'>
                 <div className='popup-number'>
@@ -114,7 +122,7 @@ export default function CalendarPopup({ day, onClosed }: PopupProps): JSX.Elemen
                 </div>
                 <div className='spacer'></div>
 
-                {Array(2).fill(0).map((_, partIndex) => {
+                {[0, 1].map(partIndex => {
                     const solutionState = solutionStates ? solutionStates[partIndex] : null;
                     let result: string | null = null;
                     let timeMs = elapsedTimes[partIndex] ?? null;

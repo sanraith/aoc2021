@@ -58,7 +58,7 @@
 .modal-background {
     --open-duration: 0.4s;
     position: absolute;
-    display: none;
+    pointer-events: none;
     left: 0;
     top: 0;
     width: 100%;

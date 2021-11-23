@@ -15,7 +15,7 @@ export interface Day01Data {
 export class Day01 extends SolutionBase {
     protected visualizationData?: Day01Data;
 
-    protected part1(): number | string {
+    protected part1(): number {
         const checks: number[] = [];
         const numbers = this.inputLines.map(x => toInteger(x));
         for (let i = 0; i < numbers.length; i++) {
@@ -33,7 +33,7 @@ export class Day01 extends SolutionBase {
         this.noSolution();
     }
 
-    protected part2(): number | string {
+    protected part2(): number {
         const checks: number[] = [];
         const numbers = this.inputLines.map(x => toInteger(x));
         for (let i = 0; i < numbers.length; i++) {

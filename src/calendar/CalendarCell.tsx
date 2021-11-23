@@ -14,6 +14,7 @@ export default function CalendarCell({ day, hasSolution, isCopy, onCellClick }: 
     const runtimeSolution = day ? runtimeSolutionService.runtimeSolutions.get(day) : null;
     const [progress, setProgress] = useState<number | null>(null);
 
+    /** Update progress display on cell on changes. */
     useEffect(() => {
         if (!runtimeSolution || isCopy) { return; }
         const unsubSolution = runtimeSolution.onChange.subscribe(() => {
