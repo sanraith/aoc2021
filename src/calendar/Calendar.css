@@ -130,6 +130,7 @@
 
 .popup.popup-enter-done .calendar-cell span {
     margin: 0;
+    margin-top: 3px;
     font-size: 50px;
 }
 
