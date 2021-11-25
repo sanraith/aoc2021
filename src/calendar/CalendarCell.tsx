@@ -1,5 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
+import { get2DigitDay } from '../core/helpers';
 import { ContainerContext } from '../services/container';
+import { webPath } from '../webHelpers';
 import { calendarCellId } from './calendarHelpers';
 
 export interface CalendarCellProps {
@@ -38,17 +40,23 @@ export default function CalendarCell({ day, hasSolution, isCopy, onCellClick }: 
     if (isDecemberDay) {
         const cellId = calendarCellId(day);
         const isEventDay = day <= 25 && !isCopy;
+        const doodle = runtimeSolution ? (<div className='doodle'>
+            <img src={webPath(`/doodles/day${get2DigitDay(runtimeSolution.info.day)}.png`)}></img>
+        </div>) : null;
+
         if (isCopy) {
             return (<div className="calendar-cell">
                 <span>{day}</span>
-            </div >);
+                {doodle}
+            </div>);
         } else {
             return (<div className='calendar-cell-container' style={{ position: 'relative' }}>
                 <div id={isCopy ? undefined : cellId}
                     className={'calendar-cell' + (isEventDay && hasSolution ? ' pointer' : '')}
                     onClick={() => isEventDay && onCellClick && onCellClick(day)}>
                     <span>{day}</span>
-                </div >
+                    {doodle}
+                </div>
                 <div className='progress background' style={{
                     width: progress === null ? 0 : (100 - progress) + '%',
                     left: progress === null ? 0 : progress + '%'

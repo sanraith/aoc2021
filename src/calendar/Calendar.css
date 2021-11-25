@@ -35,7 +35,7 @@
     height: 100%;
     transition: width var(--speed) ease, left var(--speed) ease;
     background-color: rgba(0, 255, 0, 0.4);
-    z-index: -1;
+    z-index: -10;
 }
 
 .calendar-cell-container .progress.background {
@@ -48,10 +48,24 @@
 }
 
 .calendar-cell span {
-    display: table-cell; /* for text vertical align */
-    text-align: center;
-    vertical-align: middle;
+    display: block;
+    text-align: left;
+    margin-left: 10px;
+    margin-top: 5px;
     font-size: 22px;
+}
+
+.calendar-cell .doodle {
+    display: block;
+    position: absolute;
+    left: 25px;
+    bottom: 0px;
+    z-index: -1;
+    transition: left var(--open-duration) ease, bottom var(--open-duration) ease;
+}
+.calendar-cell .doodle img {
+    width: 50px;
+    transition: width var(--open-duration) ease;
 }
 
 /* Popup styles */
@@ -110,15 +124,25 @@
 }
 
 .popup .calendar-cell span {
-    transition: font-size var(--open-duration) ease;
+    transition: font-size var(--open-duration) ease,
+        margin var(--open-duration) ease;
 }
 
 .popup.popup-enter-done .calendar-cell span {
+    margin: 0;
     font-size: 50px;
 }
 
 .popup.popup-enter-done .calendar-cell {
-    width: 75px;
+    width: 0;
+}
+
+.popup.popup-enter-done .calendar-cell .doodle {
+    bottom: 5px;
+    left: 25px;
+}
+.popup.popup-enter-done .calendar-cell .doodle img {
+    width: 150px;
 }
 
 /* Popup content */
@@ -154,8 +178,7 @@
 }
 .popup-number {
     grid-area: number;
-    justify-self: left;
-    place-self: center stretch;
+    justify-self: center;
 }
 .popup-title {
     grid-area: title;

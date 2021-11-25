@@ -21,8 +21,13 @@ function assertNever(value: never, shouldThrow = true): void | never {
     }
 }
 
+function get2DigitDay(day: number): string {
+    return day.toString().padStart(2, '0');
+}
+
 export {
     assertNever,
-    regexAll
+    regexAll,
+    get2DigitDay
 };
 
