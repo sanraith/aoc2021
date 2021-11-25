@@ -64,9 +64,10 @@ export default function CalendarPopup(params: Params): JSX.Element {
     }
 
     return (<React.Fragment>
-        <div className='modal-background' style={{ pointerEvents: isOpen ? 'auto' : 'none' }} onClick={() => onClose()}>&nbsp;</div>
+        <CSSTransition in={isOpen} classNames='popup' timeout={0}>
+            <div className='modal-background' style={{ pointerEvents: isOpen ? 'auto' : 'none' }} onClick={() => onClose()}>&nbsp;</div>
+        </CSSTransition>
         <CSSTransition in={isOpen} classNames='popup' timeout={0}
-            mountOnEnter={true}
             onEnter={() => updatePopupRect('closed')}
             onEntered={() => updatePopupRect('opened')}
             onExited={() => updatePopupRect('closed')}
