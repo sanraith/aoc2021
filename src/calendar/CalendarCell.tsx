@@ -53,7 +53,7 @@ export default function CalendarCell({ day, hasSolution, isCopy, onCellClick }: 
             return (<div className='calendar-cell-container' style={{ position: 'relative' }}>
                 <div id={isCopy ? undefined : cellId}
                     className={'calendar-cell' + (isEventDay && hasSolution ? ' pointer' : '')}
-                    onClick={() => isEventDay && onCellClick && onCellClick(day)}>
+                    onClick={() => onCellClick && onCellClick(day)}>
                     <span>{day}</span>
                     {doodle}
                 </div>

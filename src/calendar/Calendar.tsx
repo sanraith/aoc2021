@@ -49,7 +49,9 @@ export default function Calendar(): JSX.Element {
         />
         <div id="calendar" className="calendar">
             {rows.map(row => row.map(cell => (
-                <CalendarCell key={cell.day} day={cell.day} hasSolution={!!cell.solution} onCellClick={day => onCellClick(day as EventDay)} />
+                <CalendarCell key={cell.day} day={cell.day} hasSolution={!!cell.solution}
+                    onCellClick={day => cell.solution && onCellClick(day as EventDay)}
+                />
             )))}
         </div>
         <button onClick={() => onSolveAllClick()}>Solve all</button>
