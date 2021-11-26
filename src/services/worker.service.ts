@@ -6,6 +6,7 @@ import SolveRequest from './solveRequest';
 type WorkerInfo = { isAvailable: boolean, worker: Worker; };
 type QueuedWork = { subscriber?: Subscriber<SolutionState>, workerInfo?: WorkerInfo, isTerminated: boolean; };
 
+/** Manages solution web-workers. */
 export default class WorkerService {
     private maxWorkerCount = 4;
     private preparedWorkerCount = 1;

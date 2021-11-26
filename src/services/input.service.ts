@@ -1,3 +1,4 @@
+import { get2DigitDay } from '../core/helpers';
 import { webPath } from '../webHelpers';
 
 export default class InputService {
@@ -6,7 +7,7 @@ export default class InputService {
     async getInput(day: number): Promise<string | null> {
         if (!this.cache.has(day)) {
             try {
-                const response = await fetch(webPath(`/input/day${day.toString().padStart(2, '0')}.txt`));
+                const response = await fetch(webPath(`/input/day${get2DigitDay(day)}.txt`));
                 const result = await response.text();
                 this.cache.set(day, result);
             } catch (error) {

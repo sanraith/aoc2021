@@ -8,17 +8,23 @@ import WorkerService from './worker.service';
 
 
 export interface RuntimeSolution {
+    /** Static information about the solution. */
     info: SolutionInfo,
+    /** The last known state of each solution part. */
     states: [SolutionState, SolutionState];
+    /** The date in milliseconds when each solution part has started. */
     startTimes: [number | null, number | null];
-
+    /** Fired when the states or start times have changed. */
     onChange: IEvent<RuntimeSolution, void>;
+    /** Starts the solution in a background webworker. */
     start: () => Promise<void>;
+    /** Cancels an ongoing solution if there is any. */
     cancel: () => void;
 }
 
 interface RuntimeSolutionInternal extends RuntimeSolution {
     onChange: EventDispatcher<RuntimeSolutionInternal, void>;
+    /** Subscription to the background worker while the solution is running. */
     subscription: Subscription | null;
 }
 

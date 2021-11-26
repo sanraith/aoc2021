@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
+import { get2DigitDay } from '../core/helpers';
 import solutionManager from '../core/solutionManager';
 import { ContainerContext } from '../services/container';
 import { RuntimeSolution } from '../services/runtimeSolution.service';
@@ -22,7 +23,7 @@ export default function Calendar(): JSX.Element {
     const history = useHistory();
 
     const onCellClick = useCallback((day: EventDay | null) => {
-        history.push(day ? `/day/${day.toString().padStart(2, '0')}` : '/');
+        history.push(day ? `/day/${get2DigitDay(day)}` : '/');
         if (day) {
             setPopupSolution(runtimeSolutionService.runtimeSolutions.get(day));
         }
