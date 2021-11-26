@@ -10,6 +10,7 @@ interface CurrentSolution {
 }
 
 export default abstract class SolutionBase {
+    /** Minimum elapsed milliseconds between progress updates. */
     minTimeBetweenUpdatesMs = 20;
 
     protected visualizationData?: unknown;
@@ -25,11 +26,19 @@ export default abstract class SolutionBase {
     private _inputLines?: string[];
     private currentSolution?: CurrentSolution;
 
+    /**
+     * Initializes the solution with the given input.
+     * @param input 
+     */
     init(input: string): this {
         this._input = input;
         return this;
     }
 
+    /**
+     * Solves a part asynchronously.
+     * @returns The result as string, or null if there was an error.
+     */
     async solveAsync(part: 1 | 2): Promise<string | null> {
         const state = await lastValueFrom(this.solveWithProgress(part));
         switch (state.kind) {
@@ -38,6 +47,10 @@ export default abstract class SolutionBase {
         }
     }
 
+    /**
+     * Solves the given part with progress updates.
+     * @returns Observable usable to track the solution progress.
+     */
     solveWithProgress(part: 1 | 2): Observable<SolutionState> {
         return new Observable<SolutionState>(subscriber => {
             if (!this._input) {
@@ -76,10 +89,16 @@ export default abstract class SolutionBase {
         });
     }
 
+    /** Solution for part 1. */
     protected abstract part1(): string | number;
 
+    /** Solution for part 2. */
     protected abstract part2(): string | number;
 
+    /**
+     * Updates the progress of the solution.
+     * @param progress Status of the progress between 0..1.
+     */
     protected updateProgress(progress: number): void {
         const current = this.currentSolution;
         if (current && current.progressStopwatch.getTime() > this.minTimeBetweenUpdatesMs) {
@@ -90,10 +109,12 @@ export default abstract class SolutionBase {
         }
     }
 
+    /** Throws an error. Placeholder for when there is no solution yet. */
     protected noSolution(msg?: string): never {
         throw new Error(msg);
     }
 
+    /** Parses the input lines into a string array omitting the tailing empty lines. */
     private parseInputLines(input: string): string[] {
         const newLineRegex = /\r\n?|\n/g;
         const inputLines = input.split(newLineRegex);

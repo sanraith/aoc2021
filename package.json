@@ -7,6 +7,7 @@
         "start": "react-scripts start",
         "build": "react-scripts build",
         "deploy": "ts-node -C typescript -P util/tsconfig.util.json util/deploy.ts",
+        "scaffold": "ts-node -C typescript -P util/tsconfig.util.json util/scaffold.ts",
         "index": "barrelsby --delete --singleQuotes --directory src/solutions",
         "test": "react-scripts test",
         "lint": "eslint src/*.tsx",
@@ -33,6 +34,7 @@
         "web-vitals": "^1.1.2"
     },
     "devDependencies": {
+        "@types/argparse": "^2.0.10",
         "@types/fs-extra": "^9.0.13",
         "@types/lodash": "^4.14.176",
         "@types/path-browserify": "^1.0.0",
@@ -40,7 +42,9 @@
         "@types/react-transition-group": "^4.4.4",
         "@typescript-eslint/eslint-plugin": "^5.2.0",
         "@typescript-eslint/parser": "^5.2.0",
+        "argparse": "^2.0.1",
         "barrelsby": "^2.3.0",
+        "cheerio": "^1.0.0-rc.10",
         "eslint": "^7.32.0",
         "eslint-plugin-react": "^7.26.1",
         "eslint-plugin-react-hooks": "^4.2.0",

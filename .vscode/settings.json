@@ -1,12 +1,15 @@
 {
     "cSpell.words": [
+        "argparse",
         "browserslist",
         "cmiddle",
         "cright",
         "linebreak",
         "notransition",
         "unsub",
-        "webfonts"
+        "webfonts",
+        "xdescribe",
+        "xtest"
     ],
     "files.exclude": {
         // Defaults
