@@ -21,9 +21,10 @@ function fixtureSetup(type: Constructor<SolutionBase>): FixtureSetup {
             solutionInstance.init(input);
             solution = solutionInstance;
         },
-        expectedResult: (part: 1 | 2, result: string) => async () => {
+        expectedResult: (part: 1 | 2, resultExpected: string) => async () => {
             expect(solution).toBeTruthy();
-            expect(await solution!.solveAsync(part)).toEqual(result);
+            const resultActual = await solution!.solveAsync(part);
+            expect(resultActual).toEqual(resultExpected);
         }
     };
 }
