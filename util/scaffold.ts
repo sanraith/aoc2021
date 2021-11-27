@@ -132,7 +132,7 @@ async function createNewSolutionFilesAsync(dayNumber?: number, year = 2020/* TOD
     await fsAsync.writeFile(newSourcePath, solutionContents, { encoding: 'utf-8' });
 
     console.log(`Updating index: ${solutionPath}index.ts`);
-    await runChildProcessAsync('npm run index', false);
+    await runChildProcessAsync('npm run generate-index', false);
 
     console.log(`Creating new test file: ${newTestPath}`);
     const testTemplate = await fsAsync.readFile(testTemplatePath, { encoding: 'utf-8' });

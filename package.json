@@ -4,11 +4,13 @@
     "private": true,
     "homepage": "aoc2021/",
     "scripts": {
-        "start": "react-scripts start",
+        "start": "ts-node -C typescript -P util/tsconfig.console.json src/console/start.ts",
+        "dev": "nodemon --config \"util/console-nodemon.json\"",
+        "web": "react-scripts start",
+        "deploy": "ts-node -C typescript -P util/tsconfig.console.json util/deploy.ts",
+        "scaffold": "ts-node -C typescript -P util/tsconfig.console.json util/scaffold.ts",
+        "generate-index": "barrelsby --delete --singleQuotes --directory src/solutions",
         "build": "react-scripts build",
-        "deploy": "ts-node -C typescript -P util/tsconfig.util.json util/deploy.ts",
-        "scaffold": "ts-node -C typescript -P util/tsconfig.util.json util/scaffold.ts",
-        "index": "barrelsby --delete --singleQuotes --directory src/solutions",
         "test": "react-scripts test",
         "lint": "eslint src/*.tsx",
         "eject": "react-scripts eject"
