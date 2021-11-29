@@ -38,7 +38,7 @@ export default function Calendar(): JSX.Element {
 
     useEffect(() => {
         if (!popupSolution) { return; }
-        return popupSolution.onChange.subscribe(() => setPopupSolution(popupSolution ? { ...popupSolution } : undefined));
+        return popupSolution.onChange.subscribe(() => setPopupSolution(popupSolution ? popupSolution : undefined));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [openedDay]);
 

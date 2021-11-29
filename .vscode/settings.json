@@ -22,7 +22,9 @@
         "**/Thumbs.db": true,
         // Hide unnecessary folders
         "node_modules/": true,
-        "build/": true
+        "build/": true,
+        // vscode garbage
+        "debug.log": true
     },
     // "jest.jestCommandLine": "npm run test-fix",
     // "jest.autoRun": "off",

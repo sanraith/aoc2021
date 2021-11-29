@@ -157,7 +157,8 @@
         "number title title"
         "spacer spacer spacer"
         ". . ."
-        "footer footer footer";
+        "footer footer footer"
+        ". input input";
     align-items: end;
     justify-items: start;
     column-gap: 30px;
@@ -202,6 +203,33 @@
     grid-column: footer;
     display: inline-block;
     justify-self: end;
+}
+
+.popup-part-input {
+    grid-column: input;
+    display: inline-block;
+    justify-self: stretch;
+    margin-left: 60px;
+}
+.popup-part-input textarea {
+    margin-top: 10px;
+    width: 100%;
+    height: 80px;
+    margin-bottom: -30px;
+    transition: opacity var(--open-duration) ease;
+}
+
+.input-anim.enter {
+    opacity: 0;
+}
+.input-anim.enter-done {
+    opacity: 1;
+}
+.input-anim.exit {
+    opacity: 1;
+}
+.input-anim.exit-done {
+    opacity: 0;
 }
 
 /* Buttons in popup */

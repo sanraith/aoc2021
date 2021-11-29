@@ -1,4 +1,5 @@
 import { ArgumentParser } from 'argparse';
+import { lastValueFrom, tap } from 'rxjs';
 import solutionManager from '../core/solutionManager';
 import { SolutionError, SolutionResult } from '../core/solutionState';
 import FileInputManager from './fileInputManager';
@@ -34,27 +35,17 @@ async function app(days: number[]) {
 
             console.log(`Day ${solutionInfo.day} - ${solutionInfo.title}`);
             for (const part of [1, 2] as const) {
-                await new Promise<void>((resolve) => {
-                    let result: string | null;
-                    let resultState: SolutionResult | SolutionError;
-                    consoleRewrite(`Part ${part}...`);
-                    solution.solveWithProgress(part).subscribe({
-                        next: state => {
-                            switch (state.kind) {
-                                case 'result': resultState = state; result = state.result; break;
-                                case 'error': resultState = state; result = 'Error - ' + state.message; break;
-                                case 'progress':
-                                    consoleRewrite(`Part ${part} (${state.timeMs}+ ms): ${(state.progress * 100).toFixed(2)} %`);
-                                    break;
-                            }
-                        },
-                        complete: () => {
-                            consoleRewriteLine(`Part ${part} (${resultState.timeMs} ms): ${result}`);
-                            totalTime += resultState.timeMs;
-                            resolve();
-                        }
-                    });
-                });
+                consoleRewrite(`Part ${part}...`);
+                const solutionObservable = solution.solveWithProgress(part).pipe(tap(state => {
+                    if (state.kind === 'progress') {
+                        consoleRewrite(`Part ${part} (${state.timeMs}+ ms): ${(state.progress * 100).toFixed(2)} %`);
+                    }
+                }));
+                const state = await lastValueFrom(solutionObservable) as SolutionResult | SolutionError;
+                let result = state.kind === 'result' ? state.result ?? '' : `Error - ${state.message}`;
+                result = /\n/g.test(result) ? `\n${result}` : result;
+                consoleRewriteLine(`Part ${part} (${state.timeMs} ms): ${result}`);
+                totalTime += state.timeMs;
             }
             console.log();
         }
@@ -67,7 +58,7 @@ async function app(days: number[]) {
 
 async function parseArgs() {
     const parser = new ArgumentParser({
-        description: 'Advent of Code 2020 solutions in Typescript',
+        description: 'Advent of Code 2021 solutions in Typescript',
         add_help: true,
     });
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { SyntheticEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { CSSTransition } from 'react-transition-group';
 import { RuntimeSolution } from '../services/runtimeSolution.service';
 import CalendarCell from './CalendarCell';
@@ -19,6 +19,7 @@ export default function CalendarPopup(params: Params): JSX.Element {
     const [elapsedTimes, setElapsedTimes] = useState<(number | null)[]>([]);
     /** Stops the timer that updates elapsed time. */
     const stopTimer = useRef<() => void>();
+    const [isInputOpen, setIsInputOpen] = useState(false);
     const isOngoing = runtimeSolution?.states.some(x => x.kind === 'progress');
     const day = runtimeSolution?.info.day ?? null;
 
@@ -32,12 +33,22 @@ export default function CalendarPopup(params: Params): JSX.Element {
     /** Cancels currently running solution. */
     const onCancelClick = useCallback(() => runtimeSolution?.cancel(), [runtimeSolution]);
 
+    const onInputChange = useCallback((evt: SyntheticEvent<HTMLTextAreaElement>) => {
+        console.log(evt);
+        runtimeSolution && (runtimeSolution.input = evt.currentTarget.value);
+    }, [runtimeSolution]);
+
     /** Updates the size and position of the popup. */
     const updatePopupRect = useCallback((state: 'closed' | 'opened') => {
         if (!day || !popupRef.current || !popupGridRef.current) { return; }
         const style = getPopupRect(day, state, popupGridRef.current);
         Object.assign(popupRef.current.style, style);
     }, [day]);
+
+    const onShowInputClick = useCallback(() => {
+        setIsInputOpen(!isInputOpen);
+        setTimeout(() => updatePopupRect('opened'), 0);
+    }, [isInputOpen, updatePopupRect]);
 
     /** Update popup rect if the window is resized */
     useEffect(() => {
@@ -120,14 +131,12 @@ export default function CalendarPopup(params: Params): JSX.Element {
                     <div style={{ height: '20px' }}></div>
                     <div className='popup-part-footer fade'>
                         <div className='collapsible'>
-                            <button className='secondary' onClick={() => alert('Not implemented yet.')}>
+                            <button className='secondary' onClick={() => onShowInputClick()}>
                                 <span>💽</span> Input
                             </button>
-                            {/* TODO Change link from dev to main */}
                             <button className='secondary' onClick={() => openSourceCodeInNewTab(day)}>
                                 <span>📜</span> Source
                             </button>
-                            {/* TODO Change link from 2020 to 2021 */}
                             <button className='secondary' onClick={() => openPuzzleDescriptionInNewTab(day)}>
                                 <span>🎄</span> Puzzle
                             </button>
@@ -135,6 +144,19 @@ export default function CalendarPopup(params: Params): JSX.Element {
                         <button className={'primary' + (isOngoing ? ' cancel' : '')} onClick={() => isOngoing ? onCancelClick() : onSolveClick()}>
                             {isOngoing ? '❌ Cancel' : '📈 Solve'}
                         </button>
+                    </div>
+                    <div className='popup-part-input'>
+                        <CSSTransition in={isInputOpen} className='input-anim' timeout={0} mountOnEnter={true} unmountOnExit={true}
+                            onExited={() => setTimeout(() => updatePopupRect('opened'))}
+                        >
+                            <div>
+                                <span>Puzzle input:</span>
+                                <textarea
+                                    disabled={(runtimeSolution?.input ?? null) === null}
+                                    onChange={value => onInputChange(value)}
+                                >{runtimeSolution?.input}</textarea>
+                            </div>
+                        </CSSTransition>
                     </div>
                     <div style={{ height: '10px' }}></div>
                 </div>

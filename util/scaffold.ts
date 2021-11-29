@@ -52,6 +52,7 @@ async function readSessionKeyAsync(): Promise<string> {
 
 Fill your session key in util/session.json to use scaffolding features!
 
+
 `);
     }
 
@@ -110,7 +111,7 @@ function fillTemplate(template: string, dayNumber: number, twoDigitDayNumber: st
         .replace(templateRegex__TITLE__, title);
 }
 
-async function createNewSolutionFilesAsync(dayNumber?: number, year = 2020/* TODO update to 2021 */) {
+async function createNewSolutionFilesAsync(dayNumber: number | undefined, year: number) {
     dayNumber = dayNumber ?? await getNextSolutionIndex();
 
     console.log(`Scaffolding day ${dayNumber} of ${year}.`);
@@ -141,8 +142,11 @@ async function createNewSolutionFilesAsync(dayNumber?: number, year = 2020/* TOD
 
     console.log('Opening generated files in vs code...');
     for (const filePath of [newInputPath, newTestPath, newSourcePath]) {
-        await runChildProcessAsync(`code-insiders ${filePath}`);
+        await runChildProcessAsync(`code-insiders ${filePath}`, false);
     }
+
+    console.log('Opening puzzle page...');
+    await runChildProcessAsync(`explorer "https://adventofcode.com/${year}/day/${dayNumber}"`, false);
 
     console.log('Done.');
 }
@@ -154,8 +158,8 @@ async function parseArgs() {
     });
 
     parser.add_argument('-y', '--year', {
-        help: 'Puzzle year. Used for picking puzzles from adventofcode.com. Default: 2020.',
-        default: 2020, type: 'int'
+        help: 'Puzzle year. Used for picking puzzles from adventofcode.com. Default: 2020.', // TODO update to 2021
+        default: 2020, type: 'int' // TODO update to 2021
     });
     parser.add_argument('days', {
         help: 'Scaffold a single day or multiple days.',

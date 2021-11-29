@@ -10,6 +10,8 @@ import WorkerService from './worker.service';
 export interface RuntimeSolution {
     /** Static information about the solution. */
     info: SolutionInfo,
+    /** Input for the solution. */
+    input: string | null,
     /** The last known state of each solution part. */
     states: [SolutionState, SolutionState];
     /** The date in milliseconds when each solution part has started. */
@@ -26,6 +28,7 @@ interface RuntimeSolutionInternal extends RuntimeSolution {
     onChange: EventDispatcher<RuntimeSolutionInternal, void>;
     /** Subscription to the background worker while the solution is running. */
     subscription: Subscription | null;
+    inputPromise: Promise<void> | null;
 }
 
 export default class RuntimeSolutionService {
@@ -34,12 +37,19 @@ export default class RuntimeSolutionService {
     get runtimeSolutions(): Map<number, RuntimeSolution> { return this._runtimeSolutions; }
 
     constructor(
-        private inputService: InputService,
+        inputService: InputService,
         private workerService: WorkerService
     ) {
         for (const [day, info] of solutionManager.getSolutionsByDay().entries()) {
             this._runtimeSolutions.set(day, {
                 info: info,
+                input: null,
+                inputPromise: inputService.getInput(day).then(x => {
+                    const rs = this._runtimeSolutions.get(day)!;
+                    rs.input = x ?? '';
+                    rs.inputPromise = null;
+                    rs.onChange.dispatch(rs);
+                }),
                 states: [new SolutionNotStarted(1), new SolutionNotStarted(2)],
                 startTimes: [null, null],
                 onChange: new EventDispatcher<RuntimeSolutionInternal, void>(),
@@ -51,11 +61,14 @@ export default class RuntimeSolutionService {
     }
 
     private async start(day: number): Promise<void> {
-        const input = await this.inputService.getInput(day);
-        if (!input) { throw new Error(`Could not find input for day ${day}!`); }
-
         const runtimeSolution = this._runtimeSolutions.get(day);
         if (!runtimeSolution) { throw new Error(`Could not find runtimeState for day ${day}!`); }
+
+        if (runtimeSolution.inputPromise) {
+            await runtimeSolution.inputPromise;
+            if (runtimeSolution.input === null) { throw new Error(`Could not load input for day ${day}!`); }
+        }
+        const input = runtimeSolution.input!;
 
         if (runtimeSolution.subscription) {
             this.cancel(day);

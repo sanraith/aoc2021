@@ -50,12 +50,12 @@ export function getPopupRect(
 
 export function openPuzzleDescriptionInNewTab(day: number | null): void {
     if (!day) { return; }
-    window.open(`https://adventofcode.com/2020/day/${day}`);
+    window.open(`https://adventofcode.com/2020/day/${day}`); // TODO change to 2021
 }
 
 export function openSourceCodeInNewTab(day: number | null): void {
     if (!day) { return; }
-    window.open(`https://github.com/sanraith/aoc2021/blob/dev/src/solutions/day${get2DigitDay(day)}.ts`);
+    window.open(`https://github.com/sanraith/aoc2021/blob/dev/src/solutions/day${get2DigitDay(day)}.ts`); // TODO change to main
 }
 
 export type EventDay = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25;
