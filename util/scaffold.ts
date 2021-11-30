@@ -158,8 +158,8 @@ async function parseArgs() {
     });
 
     parser.add_argument('-y', '--year', {
-        help: 'Puzzle year. Used for picking puzzles from adventofcode.com. Default: 2020.', // TODO update to 2021
-        default: 2020, type: 'int' // TODO update to 2021
+        help: 'Puzzle year. Used for picking puzzles from adventofcode.com. Default: 2021.',
+        default: 2021, type: 'int'
     });
     parser.add_argument('days', {
         help: 'Scaffold a single day or multiple days.',
