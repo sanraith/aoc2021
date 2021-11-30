@@ -1,7 +1,9 @@
 # aoc2021
 
-Solutions for the Advent of Code 2021 in Typescript with custom React calendar.  
-Includes a web app and a console runner. Check out the web app at <https://sanraith.github.com/aoc2021>
+Solutions for the Advent of Code 2021 in Typescript with a custom React calendar.  
+Includes a web app and a console runner. Check out the web app at <https://sanraith.github.io/aoc2021>
+
+![Screenshot](notes/screenshot.png)
 
 ## Local repository setup
 
@@ -32,7 +34,6 @@ as one would do manually within a browser.
 Provide your session key in `util/session.json` if you want to fetch the puzzle title and input.
 
 ```json
-// util/session.json
 {
     "sessionKey": "YOUR_SESSION_KEY_HERE"
 }
