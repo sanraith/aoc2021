@@ -9,7 +9,6 @@
         "web": "react-scripts start",
         "deploy": "ts-node -C typescript -P util/tsconfig.console.json util/deploy.ts",
         "scaffold": "ts-node -C typescript -P util/tsconfig.console.json util/scaffold.ts",
-        "test-fix": "ts-node -C typescript -P util/tsconfig.console.json util/test-fix.ts",
         "generate-index": "barrelsby --delete --singleQuotes --directory src/solutions",
         "build": "react-scripts build",
         "test": "react-scripts test",

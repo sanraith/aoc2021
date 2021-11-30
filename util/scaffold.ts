@@ -47,7 +47,7 @@ async function readSessionKeyAsync(): Promise<string> {
 
     const key = sessionData.sessionKey;
     if (!key || key.length === 0) {
-        throw new Error(`
+        console.warn(`
 
 
 Fill your session key in util/session.json to use scaffolding features!

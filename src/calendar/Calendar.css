@@ -216,16 +216,14 @@
     width: 100%;
     height: 80px;
     margin-bottom: -30px;
+}
+.popup-part-input div {
     transition: opacity var(--open-duration) ease;
 }
-
 .input-anim.enter {
     opacity: 0;
 }
 .input-anim.enter-done {
-    opacity: 1;
-}
-.input-anim.exit {
     opacity: 1;
 }
 .input-anim.exit-done {
