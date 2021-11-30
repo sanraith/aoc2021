@@ -2,10 +2,10 @@ import React, { useContext } from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Route, useParams } from 'react-router-dom';
 import './index.css';
-import App from './App';
+import App from './web/App';
 import reportWebVitals from './reportWebVitals';
-import { container, ContainerContext } from './services/container';
-import { EventDay } from './calendar/calendarHelpers';
+import { container, ContainerContext } from './web/services/container';
+import { EventDay } from './web/calendar/calendarHelpers';
 
 function RouteParser(): null {
     const { routerService } = useContext(ContainerContext);

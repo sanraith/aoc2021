@@ -1,8 +1,0 @@
-TODO
-    visualization fw
-
-DONE
-    about
-    better solve all button
-    design
-    router

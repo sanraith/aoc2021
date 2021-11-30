@@ -1,4 +1,4 @@
-import { get2DigitDay } from '../core/helpers';
+import { get2DigitDay } from '../../core/helpers';
 
 export function calendarCellId(dayNumber: number): string {
     return `cd${dayNumber}`;

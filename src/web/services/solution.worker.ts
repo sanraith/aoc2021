@@ -2,8 +2,8 @@
 
 import { lastValueFrom } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import solutionManager from '../core/solutionManager';
-import { SolutionResult } from '../core/solutionState';
+import solutionManager from '../../core/solutionManager';
+import { SolutionResult } from '../../core/solutionState';
 import SolveRequest from './solveRequest';
 
 const solutionInfos = solutionManager.getSolutionsByDay();

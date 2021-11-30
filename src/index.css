@@ -11,7 +11,7 @@ body {
     -moz-osx-font-smoothing: grayscale;
 
     background: #eceff1;
-    background-image: url(./img/Winter_Background.jpg);
+    background-image: url(./web/img/Winter_Background.jpg);
     background-size: cover;
     background-position: top;
     background-repeat: no-repeat;

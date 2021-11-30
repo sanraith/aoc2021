@@ -1,5 +1,5 @@
-import { get2DigitDay } from '../core/helpers';
-import { webPath } from '../webHelpers';
+import { get2DigitDay } from '../../core/helpers';
+import { webPath } from '../../webHelpers';
 
 export default class InputService {
     private cache = new Map<number, string>();

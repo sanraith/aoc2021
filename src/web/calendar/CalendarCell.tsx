@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
-import { get2DigitDay } from '../core/helpers';
+import { get2DigitDay } from '../../core/helpers';
 import { ContainerContext } from '../services/container';
-import { webPath } from '../webHelpers';
+import { webPath } from '../../webHelpers';
 import { calendarCellId } from './calendarHelpers';
 
 export interface CalendarCellProps {

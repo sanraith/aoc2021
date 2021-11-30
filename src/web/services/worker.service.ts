@@ -1,6 +1,6 @@
 import { Observable, Subscriber } from 'rxjs';
 import { EventDispatcher, IEventManagement } from 'strongly-typed-events';
-import { SolutionState } from '../core/solutionState';
+import { SolutionState } from '../../core/solutionState';
 import SolveRequest from './solveRequest';
 
 type WorkerInfo = { isAvailable: boolean, worker: Worker; };

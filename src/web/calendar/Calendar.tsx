@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
-import { get2DigitDay } from '../core/helpers';
-import solutionManager from '../core/solutionManager';
+import { get2DigitDay } from '../../core/helpers';
+import solutionManager from '../../core/solutionManager';
 import { ContainerContext } from '../services/container';
 import { RuntimeSolution } from '../services/runtimeSolution.service';
 import './Calendar.css';

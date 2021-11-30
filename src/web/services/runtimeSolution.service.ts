@@ -1,8 +1,8 @@
 import { Subscription } from 'rxjs';
 import { EventDispatcher, IEvent } from 'strongly-typed-events';
-import { SolutionInfo } from '../core/solutionInfo';
-import solutionManager from '../core/solutionManager';
-import { SolutionCanceled, SolutionNotStarted, SolutionProgress, SolutionState } from '../core/solutionState';
+import { SolutionInfo } from '../../core/solutionInfo';
+import solutionManager from '../../core/solutionManager';
+import { SolutionCanceled, SolutionNotStarted, SolutionProgress, SolutionState } from '../../core/solutionState';
 import InputService from './input.service';
 import WorkerService from './worker.service';
 
