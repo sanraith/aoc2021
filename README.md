@@ -28,8 +28,8 @@ You can also run `npm run dev` to start a nodemon process for the latest solutio
 
 ## Scaffolding
 
-This project only contacts [adventofcode.com](https://adventofcode.com) when the you
-explicitly issue one of the below commands. It makes exactly the same amount of requests
+This project only contacts [adventofcode.com](https://adventofcode.com) when you
+issue one of the below commands. It makes exactly 1 request for the description and input
 as one would do manually within a browser.  
 Provide your session key in `util/session.json` if you want to fetch the puzzle title and input.
 
