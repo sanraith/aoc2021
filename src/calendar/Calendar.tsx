@@ -62,6 +62,8 @@ export default function Calendar(): JSX.Element {
                 />
             )))}
         </div>
-        <button onClick={() => onSolveAllClick()}>Solve all</button>
+        <div className='solveAll'>
+            <button onClick={() => onSolveAllClick()}>Solve all</button>
+        </div>
     </React.Fragment >);
 }

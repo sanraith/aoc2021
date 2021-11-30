@@ -2,27 +2,40 @@
 .calendar {
     display: grid;
     grid-template-columns: repeat(7, auto);
-    column-gap: 20px;
-    row-gap: 20px;
-    padding: 20px;
+    column-gap: 25px;
+    row-gap: 25px;
+    padding: 40px;
 
     user-select: none;
-    border: 1px dashed;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 40px;
     overflow: hidden;
     width: fit-content;
 
     margin-top: 50px;
     margin-left: auto;
     margin-right: auto;
+
+    background-color: rgba(79, 154, 179, 0.75);
+    box-shadow: rgba(0, 0, 0, 0.3) 10px 19px 38px,
+        rgba(0, 0, 0, 0.3) 0px 15px 12px;
 }
 
 .calendar-cell {
     width: 75px;
     height: 75px;
     display: table; /* for text vertical align */
-
-    border: 1px solid;
+    position: relative;
+    border: 1px solid rgba(0, 0, 0, 0.8);
     user-select: none;
+}
+
+.calendar-cell-container {
+    background-color: rgba(250, 250, 250, 0.75);
+    font-weight: 500;
+}
+.calendar-cell-container.clickable:hover {
+    background-color: rgba(250, 250, 250, 1);
 }
 
 .calendar-cell-container .progress {
@@ -34,12 +47,11 @@
     width: 100%;
     height: 100%;
     transition: width var(--speed) ease, left var(--speed) ease;
-    background-color: rgba(0, 255, 0, 0.4);
-    z-index: -10;
+    background-color: rgba(142, 255, 255, 0.5);
 }
 
 .calendar-cell-container .progress.background {
-    background-color: rgba(150, 150, 150, 0.4);
+    background-color: rgba(142, 179, 191, 0.5);
 }
 
 .calendar-cell.gray {
@@ -60,12 +72,34 @@
     position: absolute;
     left: 25px;
     bottom: 0px;
-    z-index: -1;
+    z-index: 1;
     transition: left var(--open-duration) ease, bottom var(--open-duration) ease;
 }
 .calendar-cell .doodle img {
     width: 50px;
     transition: width var(--open-duration) ease;
+}
+
+.solveAll {
+    margin-top: 40px;
+    margin-bottom: 150px;
+    text-align: center;
+}
+.solveAll button {
+    font-size: larger;
+    padding: 15px 100px;
+    border: 1px solid;
+    border-color: #386e7f;
+    border-radius: 20px;
+    background-color: #bdeeff;
+    cursor: pointer;
+}
+.solveAll button:hover {
+    border-color: black;
+    background-color: #ddffff;
+}
+.solveAll button:active {
+    background-color: rgba(79, 154, 179, 0.5);
 }
 
 /* Popup styles */
@@ -91,8 +125,8 @@
     --width: 800px;
 
     position: absolute;
-    border: 1px solid red;
-    background-color: #eceff1;
+    border: 1px solid black;
+    background-color: rgba(220, 230, 235, 1);
     z-index: 9999;
     visibility: hidden;
     box-shadow: rgba(0, 0, 0, 0) 0px 19px 38px, rgba(0, 0, 0, 0) 0px 15px 12px;
@@ -118,6 +152,7 @@
 .popup .calendar-cell {
     border: 0;
     margin: 0;
+    position: static;
     transition: width var(--open-duration) ease,
         margin var(--open-duration) ease;
     float: none;
@@ -242,7 +277,7 @@
     cursor: pointer;
 }
 .popup button:hover {
-    border: 1px red solid;
+    border: 1px solid black;
 }
 .popup button.primary {
     background-color: greenyellow;

@@ -50,18 +50,19 @@ export default function CalendarCell({ day, hasSolution, isCopy, onCellClick }: 
                 {doodle}
             </div>);
         } else {
-            return (<div className='calendar-cell-container' style={{ position: 'relative' }}>
+            return (<div className={'calendar-cell-container' + (runtimeSolution ? ' clickable' : '')}
+                style={{ position: 'relative' }}>
+                <div className='progress background' style={{
+                    width: progress === null ? 0 : (100 - progress) + '%',
+                    left: progress === null ? 0 : progress + '%'
+                }}>&nbsp;</div>
+                <div className='progress' style={{ width: progress == null ? 0 : progress + '%' }}>&nbsp;</div>
                 <div id={isCopy ? undefined : cellId}
                     className={'calendar-cell' + (isEventDay && hasSolution ? ' pointer' : '')}
                     onClick={() => onCellClick && onCellClick(day)}>
                     <span>{day}</span>
                     {doodle}
                 </div>
-                <div className='progress background' style={{
-                    width: progress === null ? 0 : (100 - progress) + '%',
-                    left: progress === null ? 0 : progress + '%'
-                }}>&nbsp;</div>
-                <div className='progress' style={{ width: progress == null ? 0 : progress + '%' }}>&nbsp;</div>
             </div>);
         }
     } else {
