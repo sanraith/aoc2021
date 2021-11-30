@@ -1,14 +1,23 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Route, useParams } from 'react-router-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { container, ContainerContext } from './services/container';
+import { EventDay } from './calendar/calendarHelpers';
 
 function RouteParser(): null {
+    const { routerService } = useContext(ContainerContext);
     const params = useParams() as { page: string; };
-    if (!('page' in params)) { return null; }
-    console.log(`navigation page param: ${params.page}`);
+    const pageNumber = parseInt(params.page);
+
+    if (isNaN(pageNumber) || pageNumber < 1 || pageNumber > 25) {
+        routerService.clearRoute();
+    } else {
+        routerService.day = pageNumber as EventDay;
+    }
+
     return null;
 }
 
@@ -23,10 +32,12 @@ if (!isTouchDevice) {
 ReactDOM.render(
     <React.StrictMode>
         <BrowserRouter basename={process.env.PUBLIC_URL}>
-            <Route path="/day/:page" >
-                <RouteParser />
-            </Route>
-            <App />
+            <ContainerContext.Provider value={container}>
+                <Route path="/day/:page" >
+                    <RouteParser />
+                </Route>
+                <App />
+            </ContainerContext.Provider>
         </BrowserRouter>
     </React.StrictMode >,
     document.getElementById('root')

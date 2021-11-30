@@ -17,7 +17,7 @@ const rows = Array(5).fill(0).map((_, i) => Array(7).fill(0).map((_, j) => {
 }));
 
 export default function Calendar(): JSX.Element {
-    const { runtimeSolutionService } = useContext(ContainerContext);
+    const { runtimeSolutionService, routerService } = useContext(ContainerContext);
     const [openedDay, setOpenedDay] = useState<EventDay | null>(null);
     const [popupSolution, setPopupSolution] = useState<RuntimeSolution>();
     const history = useHistory();
@@ -41,6 +41,13 @@ export default function Calendar(): JSX.Element {
         return popupSolution.onChange.subscribe(() => setPopupSolution(popupSolution ? popupSolution : undefined));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [openedDay]);
+
+    useEffect(() => {
+        if (routerService.day) {
+            onCellClick(routerService.day);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (<React.Fragment>
         <CalendarPopup

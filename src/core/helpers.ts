@@ -14,6 +14,13 @@ function regexAll(regex: RegExp, text: string): RegExpExecArray[] {
     return results;
 }
 
+function* regexAllLazy(regex: RegExp, text: string): Generator<RegExpExecArray, void, unknown> {
+    let record: RegExpExecArray | null;
+    while ((record = regex.exec(text))) {
+        yield record;
+    }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function assertNever(value: never, shouldThrow = true): void | never {
     if (shouldThrow) {
@@ -28,6 +35,7 @@ function get2DigitDay(day: number): string {
 export {
     assertNever,
     regexAll,
+    regexAllLazy,
     get2DigitDay
 };
 
