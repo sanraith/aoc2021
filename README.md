@@ -1,6 +1,6 @@
 # aoc2021
 
-Solutions for the Advent of Code 2021 in Typescript with a custom React calendar.  
+Solutions for Advent of Code 2021 in Typescript with a custom React calendar.  
 Includes a web app and a console runner. Check out the web app at <https://sanraith.github.io/aoc2021>
 
 ![Screenshot](notes/screenshot.png)
