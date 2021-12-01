@@ -111,6 +111,7 @@ export default abstract class SolutionBase {
 
     /** Throws an error. Placeholder for when there is no solution yet. */
     protected noSolution(msg?: string): never {
+        msg = msg ?? 'No solution available.';
         throw new Error(msg);
     }
 

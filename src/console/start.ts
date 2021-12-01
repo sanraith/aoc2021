@@ -42,7 +42,7 @@ async function app(days: number[]) {
                     }
                 }));
                 const state = await lastValueFrom(solutionObservable) as SolutionResult | SolutionError;
-                let result = state.kind === 'result' ? state.result ?? '' : `Error - ${state.message}`;
+                let result = state.kind === 'result' ? state.result ?? '' : `(!) ${state.message}`;
                 result = /\n/g.test(result) ? `\n${result}` : result;
                 consoleRewriteLine(`Part ${part} (${state.timeMs} ms): ${result}`);
                 totalTime += state.timeMs;
