@@ -28,11 +28,11 @@
     position: relative;
     border: 1px solid rgba(0, 0, 0, 0.8);
     user-select: none;
+    font-weight: 500;
 }
 
 .calendar-cell-container {
     background-color: rgba(250, 250, 250, 0.75);
-    font-weight: 500;
 }
 .calendar-cell-container.clickable:hover {
     background-color: rgba(250, 250, 250, 1);
