@@ -5,8 +5,8 @@ export function calendarCellId(dayNumber: number): string {
 }
 
 export function getViewportSize(): { vw: number, vh: number; } {
-    const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-    const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+    const vw = document.documentElement.clientWidth ?? window.innerWidth ?? 0;
+    const vh = document.documentElement.clientHeight ?? window.innerHeight ?? 0;
 
     return { vw, vh };
 }
@@ -25,8 +25,8 @@ export function getPopupRect(
     const cellRect = cell.getBoundingClientRect();
     if (state === 'closed') {
         return {
-            left: px(cellRect.x),
-            top: px(cellRect.y),
+            left: px(cellRect.x + window.pageXOffset),
+            top: px(cellRect.y + window.pageYOffset),
             width: px(cellRect.width),
             height: px(cellRect.height)
         };
@@ -37,7 +37,7 @@ export function getPopupRect(
         const width = popupGridRect.width + 2 * popupGridMargin;
         const height = popupGridRect.height + 2 * popupGridMargin;
         const left = (vw - width) / 2;
-        const top = 100;//(vh - height) / 2;
+        const top = 200; //(vh - height) / 2;
 
         return {
             width: px(width),

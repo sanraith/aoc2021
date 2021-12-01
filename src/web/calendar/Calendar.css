@@ -118,6 +118,7 @@
 
 .modal-background.popup-enter-done {
     background-color: rgba(100, 100, 100, 0.4);
+    cursor: pointer;
 }
 
 .popup {
