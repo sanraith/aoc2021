@@ -7,6 +7,7 @@
         "linebreak",
         "nargs",
         "notransition",
+        "testday",
         "unsub",
         "webfonts",
         "xdescribe",
@@ -25,12 +26,5 @@
         "build/": true,
         // vscode garbage
         "debug.log": true
-    },
-    // "jest.jestCommandLine": "npm run test-fix",
-    // "jest.autoRun": "off",
-    "jest.autoRun": {
-        "watch": false,
-        // "onSave": "test-src-file"
-        "onSave": "test-file"
     }
 }

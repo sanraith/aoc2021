@@ -6,6 +6,7 @@
     "scripts": {
         "start": "ts-node -C typescript -P util/tsconfig.console.json src/console/start.ts",
         "dev": "nodemon --config \"util/console-nodemon.json\"",
+        "testday": ".\\util\\testday.bat",
         "web": "react-scripts start",
         "deploy": "ts-node -C typescript -P util/tsconfig.console.json util/deploy.ts",
         "scaffold": "ts-node -C typescript -P util/tsconfig.console.json util/scaffold.ts",
