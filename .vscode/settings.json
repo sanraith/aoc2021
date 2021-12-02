@@ -5,6 +5,7 @@
         "cmiddle",
         "cright",
         "linebreak",
+        "metavar",
         "nargs",
         "notransition",
         "testday",

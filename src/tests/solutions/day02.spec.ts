@@ -1,4 +1,3 @@
-/* eslint-disable quotes */
 import { Day02 } from '../../solutions';
 import { fixtureSetup } from '../testHelper';
 
