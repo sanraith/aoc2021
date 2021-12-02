@@ -15,7 +15,7 @@ export class Day01 extends SolutionBase {
     }
 
     protected part2(): number {
-        const values = [0, 0, ...this.inputLines.map(x => parseInt(x))];
+        const values = this.inputLines.map(x => parseInt(x));
         const sumsOf3 = values.slice(2).map((x, i) => values[i] + values[i + 1] + x);
         const increaseCount = sumsOf3.slice(1).reduce((a, x, i) => a + (sumsOf3[i] < x ? 1 : 0), 0);
 

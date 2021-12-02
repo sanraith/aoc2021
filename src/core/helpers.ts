@@ -3,7 +3,7 @@
  * @param regex The regular expression.
  * @param text The text.
  */
-function regexAll(regex: RegExp, text: string): RegExpExecArray[] {
+function regexMatches(regex: RegExp, text: string): RegExpExecArray[] {
     const results: RegExpExecArray[] = [];
     let record: RegExpExecArray | null;
 
@@ -14,7 +14,7 @@ function regexAll(regex: RegExp, text: string): RegExpExecArray[] {
     return results;
 }
 
-function* regexAllLazy(regex: RegExp, text: string): Generator<RegExpExecArray, void, unknown> {
+function* regexMatchesLazy(regex: RegExp, text: string): Generator<RegExpExecArray, void, unknown> {
     let record: RegExpExecArray | null;
     while ((record = regex.exec(text))) {
         yield record;
@@ -34,8 +34,8 @@ function get2DigitDay(day: number): string {
 
 export {
     assertNever,
-    regexAll,
-    regexAllLazy,
+    regexMatches,
+    regexMatchesLazy,
     get2DigitDay
 };
 
