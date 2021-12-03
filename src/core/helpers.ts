@@ -32,10 +32,16 @@ function get2DigitDay(day: number): string {
     return day.toString().padStart(2, '0');
 }
 
+/** Performs a logical XOR operation on the two parameters. */
+function xor(a: boolean, b: boolean): boolean {
+    return a !== b; // (a || b) && !(a && b);
+}
+
 export {
     assertNever,
     regexMatches,
     regexMatchesLazy,
-    get2DigitDay
+    get2DigitDay,
+    xor
 };
 
