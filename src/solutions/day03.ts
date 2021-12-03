@@ -14,13 +14,13 @@ export class Day03 extends SolutionBase {
         const binaryNumbers = this.inputLines;
         const halfCount = binaryNumbers.length / 2;
         const bitCounts = binaryNumbers[0].split('').map((_, pos) =>
-            binaryNumbers.reduce((a, bNumber) => a + (bNumber[pos] === '1' ? 1 : 0), 0)
+            binaryNumbers.reduce((a, bNumber) => a + parseInt(bNumber[pos]), 0)
         );
 
         const gamma = parseInt(bitCounts.map(x => x >= halfCount ? '1' : '0').join(''), 2);
-        const eplsilon = parseInt(bitCounts.map(x => x < halfCount ? '1' : '0').join(''), 2);
+        const epsilon = parseInt(bitCounts.map(x => x < halfCount ? '1' : '0').join(''), 2);
 
-        return gamma * eplsilon;
+        return gamma * epsilon;
     }
 
     protected part2(): number {
@@ -41,7 +41,7 @@ export class Day03 extends SolutionBase {
     }
 
     private filter(bNumbers: string[], position: number, mode: Mode): string[] {
-        const bitCount = bNumbers.reduce((a, x) => a + (x[position] === '1' ? 1 : 0), 0);
+        const bitCount = bNumbers.reduce((a, x) => a + parseInt(x[position]), 0);
         const keepBit = xor(bitCount >= bNumbers.length / 2, mode === 'least_common') ? '1' : '0';
 
         return bNumbers.filter(x => x[position] === keepBit);
