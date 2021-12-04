@@ -10,53 +10,35 @@ const boardSize = 5;
 })
 export class Day04 extends SolutionBase {
 
-    protected part1(): string | number {
-        const { numbers, boards, lookup } = this.parseInput();
-        const marks = boards.map(() => Array(boardSize).fill(0).map(() => Array(boardSize).fill(false)));
-
-        for (const drawnNumber of numbers) {
-            const hits = lookup.get(drawnNumber);
-            if (!hits) { continue; }
-
-            for (const { ti, tj, tk } of hits) {
-                marks[ti][tj][tk] = true;
-                if (this.isBingo(marks[ti], tj, tk)) {
-                    const sum = boards[ti].reduce((boardSum, rowNumbers, row) =>
-                        boardSum + rowNumbers.reduce((rowSum, x, col) =>
-                            rowSum + (marks[ti][row][col] ? 0 : x), 0
-                        ), 0
-                    );
-
-                    return sum * drawnNumber;
-                }
-            }
-        }
-
-        this.noSolution();
+    protected part1(): number {
+        return this.playBingo('play to win');
     }
 
-    protected part2(): string | number {
-        const { numbers, boards, lookup } = this.parseInput();
-        const marks = boards.map(() => Array(boardSize).fill(0).map(() => Array(boardSize).fill(false)));
-        let winCount = 0;
-        const hasWon = Array(boards.length).fill(false);
+    protected part2(): number {
+        return this.playBingo('let the giant squid win');
+    }
 
-        for (const drawnNumber of numbers) {
-            const hits = lookup.get(drawnNumber);
+    private playBingo(strategy: 'play to win' | 'let the giant squid win'): number {
+        const { numbers, boards, lookup } = this.parseInput();
+        const marks: boolean[][][] = boards.map(() => Array(boardSize).fill(0).map(() => Array(boardSize).fill(false)));
+        const wins: Set<number> = new Set();
+        const targetWinCount = strategy === 'play to win' ? 1 : boards.length;
+
+        for (const calledNumber of numbers) {
+            const hits = lookup.get(calledNumber);
             if (!hits) { continue; }
 
             for (const { ti, tj, tk } of hits) {
                 marks[ti][tj][tk] = true;
-                if (!hasWon[ti] && this.isBingo(marks[ti], tj, tk)) {
-                    const sum = boards[ti].reduce((boardSum, rowNumbers, row) =>
-                        boardSum + rowNumbers.reduce((rowSum, x, col) =>
-                            rowSum + (marks[ti][row][col] ? 0 : x), 0
-                        ), 0
-                    );
 
-                    hasWon[ti] = true;
-                    if (++winCount === boards.length) {
-                        return sum * drawnNumber;
+                if (!wins.has(ti) && this.isBingo(marks[ti], tj, tk)) {
+                    wins.add(ti);
+                    if (wins.size === targetWinCount) {
+                        const sum = boards[ti].reduce((boardSum, rowNumbers, row) =>
+                            boardSum + rowNumbers.reduce((rowSum, aNumber, col) =>
+                                rowSum + (marks[ti][row][col] ? 0 : aNumber), 0), 0);
+
+                        return sum * calledNumber;
                     }
                 }
             }
@@ -73,24 +55,25 @@ export class Day04 extends SolutionBase {
             col &&= board[hitRow][i];
             if (!row && !col) { return false; }
         }
+
         return true;
     }
 
     private parseInput() {
-        const numbers = this.parseLineNumbers(this.inputLines[0]);
-
+        const numbers = this.parseNumbersInLine(this.inputLines[0]);
         const boards: number[][][] = [];
         const lookup = new Map<number, { ti: number, tj: number, tk: number; }[]>();
+
         let lineIndex = 1;
         while (lineIndex < this.inputLines.length) {
             const board: number[][] = [];
             const ti = boards.push(board) - 1;
 
-            let line: string | null;
+            let line: string;
             while ((line = this.inputLines[++lineIndex])) {
-                const lineNumbers = this.parseLineNumbers(line);
-                const tj = board.push(lineNumbers) - 1;
-                lineNumbers.map((n, tk) => {
+                const rowNumbers = this.parseNumbersInLine(line);
+                const tj = board.push(rowNumbers) - 1;
+                rowNumbers.map((n, tk) => {
                     let lookupEntry = lookup.get(n);
                     if (!lookupEntry) { lookup.set(n, (lookupEntry = [])); }
                     lookupEntry.push({ ti, tj, tk });
@@ -101,8 +84,7 @@ export class Day04 extends SolutionBase {
         return { numbers, boards, lookup };
     }
 
-    private parseLineNumbers(line: string): number[] {
-        const results = regexMatches(/\d+/g, line).map(match => parseInt(match[0]));
-        return results;
+    private parseNumbersInLine(line: string): number[] {
+        return regexMatches(/\d+/g, line).map(match => parseInt(match[0]));
     }
 }
