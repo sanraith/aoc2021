@@ -8,7 +8,7 @@ type QueuedWork = { subscriber?: Subscriber<SolutionState>, workerInfo?: WorkerI
 
 /** Manages solution web-workers. */
 export default class WorkerService {
-    private maxWorkerCount = 4;
+    private maxWorkerCount = 1;
     private preparedWorkerCount = 1;
     private workerList: WorkerInfo[] = [];
 
