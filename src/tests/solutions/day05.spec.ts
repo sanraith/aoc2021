@@ -17,13 +17,13 @@ describe('Day05 solution', function () {
 5,5 -> 8,2`));
 
         it('solves part 1', expectedResult(1, '5'));
-        xit('solves part 2', expectedResult(2, 'Day05Part2'));
+        it('solves part 2', expectedResult(2, '12'));
     });
 
-    xdescribe('for puzzle input', function () {
+    describe('for puzzle input', function () {
         beforeAll(setupSolution());
 
-        it('solves part 1', expectedResult(1, 'Day05Part2'));
-        it('solves part 2', expectedResult(2, 'Day05Part2'));
+        it('solves part 1', expectedResult(1, '8350'));
+        it('solves part 2', expectedResult(2, '19374'));
     });
 });
