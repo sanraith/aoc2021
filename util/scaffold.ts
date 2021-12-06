@@ -140,13 +140,13 @@ async function createNewSolutionFilesAsync(dayNumber: number | undefined, year: 
     const testContents = fillTemplate(testTemplate, dayNumber, twoDigitDayNumber, title);
     await fsAsync.writeFile(newTestPath, testContents, { encoding: 'utf-8' });
 
+    console.log('Opening puzzle page...');
+    await runChildProcessAsync(`explorer "https://adventofcode.com/${year}/day/${dayNumber}"`, false);
+
     console.log('Opening generated files in vs code...');
     for (const filePath of [newInputPath, newTestPath, newSourcePath]) {
         await runChildProcessAsync(`code-insiders ${filePath}`, false);
     }
-
-    console.log('Opening puzzle page...');
-    await runChildProcessAsync(`explorer "https://adventofcode.com/${year}/day/${dayNumber}"`, false);
 
     console.log('Done.');
 }
