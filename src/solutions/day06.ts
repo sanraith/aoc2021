@@ -20,22 +20,14 @@ export class Day06 extends SolutionBase {
     }
 
     private simulateLanternfish(dayCount: number): number {
-        let ages: number[] = Array(newBornAge + 1).fill(0);
+        const ages: number[] = Array(newBornAge + 1).fill(0);
         const fishes = regexMatches(/\d/g, this.input).map(x => parseInt(x[0]));
         fishes.forEach(x => ages[x]++);
 
         for (let day = 0; day < dayCount; day++) {
-            const nextAges: number[] = Array(newBornAge + 1).fill(0);
-            ages.forEach((count, age) => {
-                const nextAge = age - 1;
-                if (nextAge === -1) {
-                    nextAges[restartAge] += count;
-                    nextAges[newBornAge] += count;
-                } else {
-                    nextAges[nextAge] += count;
-                }
-            });
-            ages = nextAges;
+            const count = ages.shift() as number;
+            ages[newBornAge] = count;
+            ages[restartAge] += count;
         }
 
         const population = ages.reduce((a, x) => a + x, 0);
