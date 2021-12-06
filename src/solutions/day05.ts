@@ -10,7 +10,7 @@ interface Pipe { x1: number; y1: number; x2: number; y2: number; }
 })
 export class Day05 extends SolutionBase {
 
-    protected part1(): string | number {
+    protected part1(): number {
         const pipes = this.parsePipes();
         const map = this.createMap(pipes, 'skip diagonals');
         const overlapCount = this.countOverlaps(map);
@@ -18,7 +18,7 @@ export class Day05 extends SolutionBase {
         return overlapCount;
     }
 
-    protected part2(): string | number {
+    protected part2(): number {
         const pipes = this.parsePipes();
         const map = this.createMap(pipes, 'include diagonals');
         const overlapCount = this.countOverlaps(map);

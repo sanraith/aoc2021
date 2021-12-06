@@ -2,7 +2,7 @@ import { xor } from '../core/helpers';
 import SolutionBase from '../core/solutionBase';
 import { solutionInfo } from '../core/solutionInfo';
 
-type Mode = 'most_common' | 'least_common';
+type KeepMode = 'most_common' | 'least_common';
 
 @solutionInfo({
     day: 3,
@@ -31,18 +31,18 @@ export class Day03 extends SolutionBase {
         return oxygenGeneratorRating * co2ScrubberRating;
     }
 
-    private getRating(bNumbers: string[], mode: Mode): number {
+    private getRating(bNumbers: string[], keep: KeepMode): number {
         for (let pos = 0; pos < bNumbers[0].length; pos++) {
-            bNumbers = this.filter(bNumbers, pos, mode);
+            bNumbers = this.filter(bNumbers, pos, keep);
             if (bNumbers.length === 1) { break; }
         }
 
         return parseInt(bNumbers[0], 2);
     }
 
-    private filter(bNumbers: string[], position: number, mode: Mode): string[] {
+    private filter(bNumbers: string[], position: number, keep: KeepMode): string[] {
         const bitCount = bNumbers.reduce((a, x) => a + parseInt(x[position]), 0);
-        const keepBit = xor(bitCount >= bNumbers.length / 2, mode === 'least_common') ? '1' : '0';
+        const keepBit = xor(bitCount >= bNumbers.length / 2, keep === 'least_common') ? '1' : '0';
 
         return bNumbers.filter(x => x[position] === keepBit);
     }
