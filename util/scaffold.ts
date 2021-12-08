@@ -16,6 +16,7 @@ const templateRegex__DAY_NUMBER__ = /__DAY_NUMBER__/g;
 const templateRegex__TITLE__ = /__TITLE__/g;
 const solutionFileRegex = /day[0-9]+\.ts/;
 const solutionIndexRegex = /(?<=day)([0-9]+)(?=\.ts)/;
+const editorExecutableName = 'code-insiders';
 
 async function getNextSolutionIndex(): Promise<number> {
     let maxIndex = 0;
@@ -97,7 +98,7 @@ async function tryLoadPuzzleDataFromWeb(year: number, dayNumber: number) {
             console.log('Could not get puzzle data from adventofcode.com.');
             console.log(error);
         }
-        console.log(`--- ${dayNumber} ${title} ---`);
+        console.log(`--- Day ${dayNumber}: ${title} ---`);
     } else {
         console.log(`--- Fill config to load puzzle data from web: ${sessionConfigPath} ---`);
     }
@@ -124,6 +125,9 @@ async function createNewSolutionFilesAsync(dayNumber: number | undefined, year: 
     title = title ?? `Day${twoDigitDayNumber}Title`;
     input = input ?? `Day${twoDigitDayNumber}Input`;
 
+    console.log('Opening puzzle page...');
+    void runChildProcessAsync(`explorer "https://adventofcode.com/${year}/day/${dayNumber}"`, false);
+
     console.log(`Saving input file: ${newInputPath}`);
     await fsAsync.writeFile(newInputPath, input, { encoding: 'utf-8' });
 
@@ -140,12 +144,9 @@ async function createNewSolutionFilesAsync(dayNumber: number | undefined, year: 
     const testContents = fillTemplate(testTemplate, dayNumber, twoDigitDayNumber, title);
     await fsAsync.writeFile(newTestPath, testContents, { encoding: 'utf-8' });
 
-    console.log('Opening puzzle page...');
-    await runChildProcessAsync(`explorer "https://adventofcode.com/${year}/day/${dayNumber}"`, false);
-
     console.log('Opening generated files in vs code...');
     for (const filePath of [newInputPath, newTestPath, newSourcePath]) {
-        await runChildProcessAsync(`code-insiders ${filePath}`, false);
+        await runChildProcessAsync(`${editorExecutableName} ${filePath}`, false);
     }
 
     console.log('Done.');
