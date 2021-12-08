@@ -24,6 +24,6 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
         beforeAll(setupSolution());
 
         it('solves part 1', expectedResult(1, '504'));
-        xit('solves part 2', expectedResult(2, 'Day08Part2'));
+        it('solves part 2', expectedResult(2, '1073431'));
     });
 });
