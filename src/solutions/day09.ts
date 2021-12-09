@@ -31,20 +31,20 @@ export class Day09 extends SolutionBase {
     }
 
     private getLowPoints({ map, width, height }: HeightMap): Point[] {
-        const points: Point[] = [];
+        const lowPoints: Point[] = [];
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
                 const current = map[y][x];
-                const isLowest = neighbors
+                const isLowPoint = neighbors
                     .map(np => map[y + np.y] && map[y + np.y][x + np.x])
                     .every(n => n === undefined || current < n);
-                if (isLowest) {
-                    points.push({ x, y });
+                if (isLowPoint) {
+                    lowPoints.push({ x, y });
                 }
             }
         }
 
-        return points;
+        return lowPoints;
     }
 
     /**
