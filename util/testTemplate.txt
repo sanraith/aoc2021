@@ -1,4 +1,3 @@
-/* eslint-disable quotes */
 import { Day__DAY_TWO_LETTER_NUMBER__ } from '../../solutions';
 import { fixtureSetup } from '../testHelper';
 
@@ -6,16 +5,17 @@ describe('Day__DAY_TWO_LETTER_NUMBER__ solution', function () {
     const { setupSolution, expectedResult } = fixtureSetup(Day__DAY_TWO_LETTER_NUMBER__);
 
     describe('for test input', function () {
+        // eslint-disable-next-line quotes
         beforeAll(setupSolution(``));
 
         it('solves part 1', expectedResult(1, 'Day__DAY_TWO_LETTER_NUMBER__Part1'));
-        it('solves part 2', expectedResult(2, 'Day__DAY_TWO_LETTER_NUMBER__Part2'));
+        xit('solves part 2', expectedResult(2, 'Day__DAY_TWO_LETTER_NUMBER__Part2'));
     });
 
-    xdescribe('for puzzle input', function () {
+    describe('for puzzle input', function () {
         beforeAll(setupSolution());
 
-        it('solves part 1', expectedResult(1, 'Day__DAY_TWO_LETTER_NUMBER__Part1'));
-        it('solves part 2', expectedResult(2, 'Day__DAY_TWO_LETTER_NUMBER__Part2'));
+        xit('solves part 1', expectedResult(1, 'Day__DAY_TWO_LETTER_NUMBER__Part1'));
+        xit('solves part 2', expectedResult(2, 'Day__DAY_TWO_LETTER_NUMBER__Part2'));
     });
 });
