@@ -158,7 +158,7 @@ async function createNewSolutionFilesAsync(dayNumber: number | undefined, year: 
     title = title ?? `Day${twoDigitDayNumber}Title`;
     input = input ?? `Day${twoDigitDayNumber}Input`;
     testInput = testInput ?? '';
-    testInput = testInput.length === 0 || testInput.includes('\n') ? `\`${testInput}\`` : `'${testInput}'`;
+    testInput = testInput.length === 0 || testInput.includes('\n') ? `\`\n${testInput}\`` : `'${testInput}'`;
     expectedPart1Result = expectedPart1Result ?? `Day${twoDigitDayNumber}Part1`;
 
     console.log('Opening puzzle page...');

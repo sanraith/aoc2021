@@ -5,7 +5,8 @@ describe('Day04 solution', function () {
     const { setupSolution, expectedResult } = fixtureSetup(Day04);
 
     describe('for test input', function () {
-        beforeAll(setupSolution(`7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
+        beforeAll(setupSolution(`
+7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
 
 22 13 17 11  0
  8  2 23  4 24

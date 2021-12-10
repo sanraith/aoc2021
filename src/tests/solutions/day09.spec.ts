@@ -5,7 +5,8 @@ describe('Day09 solution', function () {
     const { setupSolution, expectedResult } = fixtureSetup(Day09);
 
     describe('for test input', function () {
-        beforeAll(setupSolution(`2199943210
+        beforeAll(setupSolution(`
+2199943210
 3987894921
 9856789892
 8767896789

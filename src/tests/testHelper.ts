@@ -17,6 +17,8 @@ function fixtureSetup(type: Constructor<SolutionBase>): FixtureSetup {
         setupSolution: (input: string | undefined) => async () => {
             const solutionInfo = solutionManager.getSolutions().find(x => x.ctor === type)!;
             const solutionInstance = solutionInfo.create();
+            const emptyFirstLineRegex = /^\s*\n/;
+            input = input !== undefined && emptyFirstLineRegex.test(input) ? input.replace(emptyFirstLineRegex, '') : input;
             input = input ?? await fileInputManager.loadInputAsync(solutionInfo.day);
             solutionInstance.init(input);
             solution = solutionInstance;

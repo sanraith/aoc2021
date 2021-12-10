@@ -5,7 +5,8 @@ describe('Day10 solution', function () {
     const { setupSolution, expectedResult } = fixtureSetup(Day10);
 
     describe('for test input', function () {
-        beforeAll(setupSolution(`[({(<(())[]>[[{[]{<()<>>
+        beforeAll(setupSolution(`
+[({(<(())[]>[[{[]{<()<>>
 [(()[<>])]({[<{<<[]>>(
 {([(<{}[<>[]}>{[]{[(<()>
 (((({<>}<{<{<>}{[]{[]{}
