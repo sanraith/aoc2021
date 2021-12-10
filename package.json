@@ -53,7 +53,8 @@
         "eslint-plugin-react-hooks": "^4.2.0",
         "fs-extra": "^10.0.0",
         "react-scripts": "^5.0.0-next.47",
-        "ts-node": "^10.4.0"
+        "ts-node": "^10.4.0",
+        "ts-node-dev": "^1.1.8"
     },
     "browserslist": {
         "production": [

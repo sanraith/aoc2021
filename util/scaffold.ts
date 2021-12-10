@@ -14,6 +14,8 @@ const testTemplatePath = './util/testTemplate.txt';
 const templateRegex__DAY_TWO_LETTER_NUMBER__ = /__DAY_TWO_LETTER_NUMBER__/g;
 const templateRegex__DAY_NUMBER__ = /__DAY_NUMBER__/g;
 const templateRegex__TITLE__ = /__TITLE__/g;
+const templateRegex__TEST_INPUT__ = /__TEST_INPUT__/g;
+const templateRegex__TEST_EXPECTED_PART_1_RESULT__ = /__TEST_EXPECTED_PART_1_RESULT__/g;
 const solutionFileRegex = /day[0-9]+\.ts/;
 const solutionIndexRegex = /(?<=day)([0-9]+)(?=\.ts)/;
 const editorExecutableName = 'code-insiders';
@@ -81,10 +83,35 @@ function puzzleDataWebRequest(year: number, day: number, type: 'description' | '
     });
 }
 
+function tryParsePuzzleTestData(page: string) {
+    const $ = cheerio.load(page);
+    const testInputCandidates = $('article:first-of-type pre code')
+        .map((_, el) => ({
+            hasExampleLabel: /example/i.test($(el).parent().prev().text()),
+            contents: $(el).text()
+        }))
+        .toArray();
+    // Take the first block that has an 'example' sentence before it, or the first one without if none found
+    const testInput = (testInputCandidates.filter(x => x.hasExampleLabel)[0]
+        ?? testInputCandidates[0])?.contents.trim();
+
+    const expectedResultCandidates = $('article:first-of-type em')
+        .map((_, el) => $(el).text())
+        .toArray();
+    // Take the last block that does not end with a question
+    const expectedPart1Result = expectedResultCandidates
+        .filter(x => /^.*(?<!\?\s*)$/.test(x))
+        .slice(-1)[0]?.trim();
+
+    return { testInput, expectedPart1Result };
+}
+
 async function tryLoadPuzzleDataFromWeb(year: number, dayNumber: number) {
     const webTitleRegex = /(?<=.*: )(.*)(?= ---)/g;
-    let title = undefined;
-    let input = undefined;
+    let title: string = undefined;
+    let input: string = undefined;
+    let testInput: string = undefined;
+    let expectedPart1Result: string = undefined;
 
     const sessionKey = await readSessionKeyAsync();
     if (sessionKey) {
@@ -94,6 +121,7 @@ async function tryLoadPuzzleDataFromWeb(year: number, dayNumber: number) {
             const $ = cheerio.load(page);
             title = $('h2').first().text().match(webTitleRegex)[0];
             input = await puzzleDataWebRequest(year, dayNumber, 'input', sessionKey);
+            ({ testInput, expectedPart1Result } = tryParsePuzzleTestData(page));
         } catch (error) {
             console.log('Could not get puzzle data from adventofcode.com.');
             console.log(error);
@@ -102,14 +130,19 @@ async function tryLoadPuzzleDataFromWeb(year: number, dayNumber: number) {
     } else {
         console.log(`--- Fill config to load puzzle data from web: ${sessionConfigPath} ---`);
     }
-    return { title, input };
+    return { title, input, testInput, expectedPart1Result };
 }
 
-function fillTemplate(template: string, dayNumber: number, twoDigitDayNumber: string, title: string): string {
+function fillTemplate(
+    template: string, dayNumber: number, twoDigitDayNumber: string, title: string,
+    testInput = '', testExpectedPart1Result = ''
+): string {
     return template
         .replace(templateRegex__DAY_NUMBER__, dayNumber.toString())
         .replace(templateRegex__DAY_TWO_LETTER_NUMBER__, twoDigitDayNumber)
-        .replace(templateRegex__TITLE__, title);
+        .replace(templateRegex__TITLE__, title)
+        .replace(templateRegex__TEST_INPUT__, testInput)
+        .replace(templateRegex__TEST_EXPECTED_PART_1_RESULT__, testExpectedPart1Result);
 }
 
 async function createNewSolutionFilesAsync(dayNumber: number | undefined, year: number) {
@@ -121,9 +154,12 @@ async function createNewSolutionFilesAsync(dayNumber: number | undefined, year: 
     const newInputPath = `${inputPath}day${twoDigitDayNumber}.txt`;
     const newTestPath = `${testPath}day${twoDigitDayNumber}.spec.ts`;
 
-    let { title, input } = await tryLoadPuzzleDataFromWeb(year, dayNumber);
+    let { title, input, testInput, expectedPart1Result } = await tryLoadPuzzleDataFromWeb(year, dayNumber);
     title = title ?? `Day${twoDigitDayNumber}Title`;
     input = input ?? `Day${twoDigitDayNumber}Input`;
+    testInput = testInput ?? '';
+    testInput = testInput.length === 0 || testInput.includes('\n') ? `\`${testInput}\`` : `'${testInput}'`;
+    expectedPart1Result = expectedPart1Result ?? `Day${twoDigitDayNumber}Part1`;
 
     console.log('Opening puzzle page...');
     void runChildProcessAsync(`explorer "https://adventofcode.com/${year}/day/${dayNumber}"`, false);
@@ -141,7 +177,7 @@ async function createNewSolutionFilesAsync(dayNumber: number | undefined, year: 
 
     console.log(`Creating new test file: ${newTestPath}`);
     const testTemplate = await fsAsync.readFile(testTemplatePath, { encoding: 'utf-8' });
-    const testContents = fillTemplate(testTemplate, dayNumber, twoDigitDayNumber, title);
+    const testContents = fillTemplate(testTemplate, dayNumber, twoDigitDayNumber, title, testInput, expectedPart1Result);
     await fsAsync.writeFile(newTestPath, testContents, { encoding: 'utf-8' });
 
     console.log('Opening generated files in vs code...');
@@ -179,6 +215,26 @@ async function parseArgs() {
 
     for (const day of days) {
         await createNewSolutionFilesAsync(day, args.year);
+    }
+}
+
+/** Testing purposes */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function cachePages() {
+    const until = 10;
+    // const sessionKey = await readSessionKeyAsync();
+    // for (let i = 1; i <= until; i++) {
+    //     const page = await puzzleDataWebRequest(2021, i, 'description', sessionKey);
+    //     fs.writeFileSync(`util/temp/page${i.toString().padStart(2, '0')}.html`, page, { encoding: 'utf-8' });
+    // }
+
+    for (let i = 1; i <= until; i++) {
+        console.log('\n----------');
+        console.log(`page ${i}`);
+        console.log('----------');
+        const page = fs.readFileSync(`util/temp/page${i.toString().padStart(2, '0')}.html`, { encoding: 'utf-8' });
+        const result = tryParsePuzzleTestData(page);
+        console.log(result);
     }
 }
 
