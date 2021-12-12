@@ -64,7 +64,7 @@ start-RW`));
     describe('for puzzle input', function () {
         beforeAll(setupSolution());
 
-        xit('solves part 1', expectedResult(1, 'Day12Part1'));
+        it('solves part 1', expectedResult(1, '5104'));
         xit('solves part 2', expectedResult(2, 'Day12Part2'));
     });
 });

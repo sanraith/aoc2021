@@ -9,12 +9,36 @@ import { solutionInfo } from '../core/solutionInfo';
 export class Day12 extends SolutionBase {
 
     protected part1(): number {
-        const { numberMap, start, end } = this.parseInput();
-        this.noSolution();
+        const { numberMap, start, end/*, cavesAsNumbers*/ } = this.parseInput();
+        const paths = this.findPaths(start, end, numberMap, new Set([start]), []);
+        // console.log(paths);
+        // console.log(paths.map(p => p.map(x => Object.entries(cavesAsNumbers).find(e => e[1] === x)![0])));
+        // this.noSolution();
+        return paths.length;
     }
 
     protected part2(): number {
         this.noSolution();
+    }
+
+    private findPaths(start: number, target: number, numberMap: Map<number, number[]>,
+        visited: Set<number>,
+        results: number[][]
+    ) {
+        const options = numberMap.get(start)!;
+        for (const next of options) {
+            if (next < 0 && visited.has(next)) { continue; }
+
+            visited.add(next);
+            if (next === target) {
+                results.push([...visited.values()]);
+            } else {
+                this.findPaths(next, target, numberMap, visited, results);
+            }
+            visited.delete(next);
+        }
+
+        return results;
     }
 
     private parseInput() {
@@ -37,6 +61,7 @@ export class Day12 extends SolutionBase {
             !numberMap.has(asNumbers[a]) && numberMap.set(asNumbers[a], []);
             !numberMap.has(asNumbers[b]) && numberMap.set(asNumbers[b], []);
             numberMap.get(asNumbers[a])!.push(asNumbers[b]);
+            numberMap.get(asNumbers[b])!.push(asNumbers[a]);
         }
 
         // console.log(map);
