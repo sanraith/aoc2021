@@ -9,109 +9,66 @@ import { solutionInfo } from '../core/solutionInfo';
 export class Day12 extends SolutionBase {
 
     protected part1(): number {
-        const { numberMap, start, end/*, cavesAsNumbers*/ } = this.parseInput();
-        const paths = this.findPaths(start, end, numberMap, new Set([start]), []);
-        // console.log(paths);
-        // console.log(paths.map(p => p.map(x => Object.entries(cavesAsNumbers).find(e => e[1] === x)![0])));
-        // this.noSolution();
-        return paths.length;
+        const { map, start, end } = this.parseInput();
+        const pathCount = this.findPathCount(start, start, end, map, new Set([start]), 1);
+
+        return pathCount;
     }
 
     protected part2(): number {
-        const { numberMap, start, end/*, cavesAsNumbers*/ } = this.parseInput();
-        const paths = this.findPaths2(start, start, end, numberMap, [start], []);
-        // console.log(paths.map(path =>
-        //     path.map(cave => Object.entries(cavesAsNumbers).find(e => e[1] === cave)![0])
-        //         .join(',')
-        // ).sort());
+        const { map, start, end } = this.parseInput();
+        const pathCount = this.findPathCount(start, start, end, map, new Set([start]));
 
-        return paths.length;
+        return pathCount;
     }
 
-    private findPaths(start: number, target: number, numberMap: Map<number, number[]>,
-        visited: Set<number>,
-        results: number[][]
-    ) {
-        const options = numberMap.get(start)!;
-        for (const next of options) {
-            if (next < 0 && visited.has(next)) { continue; }
-
-            visited.add(next);
-            if (next === target) {
-                results.push([...visited.values()]);
-            } else {
-                this.findPaths(next, target, numberMap, visited, results);
-            }
-            visited.delete(next);
-        }
-
-        return results;
-    }
-
-    private findPaths2(
+    private findPathCount(
         start: number, current: number, target: number,
-        numberMap: Map<number, number[]>,
-        visited: number[],
-        results: number[][],
-        twiceIn = 0
+        map: Map<number, number[]>,
+        visited: Set<number>,
+        repeatedCave = 0
     ) {
-        const options = numberMap.get(current)!;
+        let pathCount = 0;
+        const options = map.get(current)!;
         for (const next of options) {
             if (next === start) { continue; }
 
-            let twice = twiceIn;
-            if (next < 0 && visited.includes(next)) {
-                if (twice !== 0) {
-                    continue;
-                }
-                twice = next;
+            let nextRepeatedCave = repeatedCave;
+            if (next < 0 && visited.has(next)) {
+                if (nextRepeatedCave) { continue; }
+                nextRepeatedCave = next;
             }
 
-            visited.push(next);
+            visited.add(next);
             if (next === target) {
-                results.push([...visited.values()]);
+                pathCount++;
             } else {
-                this.findPaths2(start, next, target, numberMap, visited, results, twice);
+                pathCount += this.findPathCount(start, next, target, map, visited, nextRepeatedCave);
             }
-            visited.pop();
+            if (nextRepeatedCave !== next) { visited.delete(next); }
         }
 
-        return results;
+        return pathCount;
     }
 
+    /** Creates a map of caves where small caves are <0 and large caves are >0. */
     private parseInput() {
-        const caves = regexMatches(/(\w+)-(\w+)/g, this.input).map(lineMatch => {
-            const [, a, b] = lineMatch;
-            return { a, b };
-        });
+        const caves = regexMatches(/(\w+)-(\w+)/g, this.input).map(([, a, b]) => ({ a, b }));
 
-        let count = 1;
-        const asNumbers: Record<string, number> = {};
-        const map: Record<string, string[]> = {};
-        const numberMap = new Map<number, number[]>();
+        let caveCount = 0;
+        const caveIds: Record<string, number> = {};
+        const map = new Map<number, number[]>();
         for (const { a, b } of caves) {
-            !map[a] && (map[a] = []);
-            !map[b] && (map[b] = []);
-            !map[a].includes(b) && map[a].push(b);
+            if (!caveIds[a]) { caveIds[a] = ++caveCount * (a[0].toUpperCase() === a[0] ? 1 : -1); }
+            if (!caveIds[b]) { caveIds[b] = ++caveCount * (b[0].toUpperCase() === b[0] ? 1 : -1); }
 
-            !asNumbers[a] && (asNumbers[a] = count++ * (a[0].toUpperCase() === a[0] ? 1 : -1));
-            !asNumbers[b] && (asNumbers[b] = count++ * (b[0].toUpperCase() === b[0] ? 1 : -1));
-            !numberMap.has(asNumbers[a]) && numberMap.set(asNumbers[a], []);
-            !numberMap.has(asNumbers[b]) && numberMap.set(asNumbers[b], []);
-            numberMap.get(asNumbers[a])!.push(asNumbers[b]);
-            numberMap.get(asNumbers[b])!.push(asNumbers[a]);
+            if (!map.has(caveIds[a])) { map.set(caveIds[a], []); }
+            if (!map.has(caveIds[b])) { map.set(caveIds[b], []); }
+
+            map.get(caveIds[a])!.push(caveIds[b]);
+            map.get(caveIds[b])!.push(caveIds[a]);
         }
 
-        // console.log(map);
-        // console.log(asNumbers);
-        // console.log(numberMap);
-
-        return {
-            caves,
-            numberMap: numberMap,
-            cavesAsNumbers: asNumbers,
-            start: asNumbers['start'],
-            end: asNumbers['end']
-        };
+        return { map, start: caveIds['start'], end: caveIds['end'] };
     }
 }
