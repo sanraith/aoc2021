@@ -9,6 +9,7 @@
         "metavar",
         "nargs",
         "notransition",
+        "Pathing",
         "testday",
         "unsub",
         "webfonts",
