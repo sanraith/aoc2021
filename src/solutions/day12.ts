@@ -18,7 +18,14 @@ export class Day12 extends SolutionBase {
     }
 
     protected part2(): number {
-        this.noSolution();
+        const { numberMap, start, end/*, cavesAsNumbers*/ } = this.parseInput();
+        const paths = this.findPaths2(start, start, end, numberMap, [start], []);
+        // console.log(paths.map(path =>
+        //     path.map(cave => Object.entries(cavesAsNumbers).find(e => e[1] === cave)![0])
+        //         .join(',')
+        // ).sort());
+
+        return paths.length;
     }
 
     private findPaths(start: number, target: number, numberMap: Map<number, number[]>,
@@ -36,6 +43,37 @@ export class Day12 extends SolutionBase {
                 this.findPaths(next, target, numberMap, visited, results);
             }
             visited.delete(next);
+        }
+
+        return results;
+    }
+
+    private findPaths2(
+        start: number, current: number, target: number,
+        numberMap: Map<number, number[]>,
+        visited: number[],
+        results: number[][],
+        twiceIn = 0
+    ) {
+        const options = numberMap.get(current)!;
+        for (const next of options) {
+            if (next === start) { continue; }
+
+            let twice = twiceIn;
+            if (next < 0 && visited.includes(next)) {
+                if (twice !== 0) {
+                    continue;
+                }
+                twice = next;
+            }
+
+            visited.push(next);
+            if (next === target) {
+                results.push([...visited.values()]);
+            } else {
+                this.findPaths2(start, next, target, numberMap, visited, results, twice);
+            }
+            visited.pop();
         }
 
         return results;

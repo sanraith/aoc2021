@@ -15,7 +15,7 @@ A-end
 b-end`));
 
         it('solves part 1', expectedResult(1, '10'));
-        xit('solves part 2', expectedResult(2, 'Day12Part2'));
+        it('solves part 2', expectedResult(2, '36'));
     });
 
 
@@ -33,7 +33,7 @@ kj-HN
 kj-dc`));
 
         it('solves part 1', expectedResult(1, '19'));
-        xit('solves part 2', expectedResult(2, 'Day12Part2'));
+        it('solves part 2', expectedResult(2, '103'));
     });
 
     describe('for test input 3', function () {
@@ -58,13 +58,13 @@ pj-fs
 start-RW`));
 
         it('solves part 1', expectedResult(1, '226'));
-        xit('solves part 2', expectedResult(2, 'Day12Part2'));
+        it('solves part 2', expectedResult(2, '3509'));
     });
 
     describe('for puzzle input', function () {
         beforeAll(setupSolution());
 
         it('solves part 1', expectedResult(1, '5104'));
-        xit('solves part 2', expectedResult(2, 'Day12Part2'));
+        it('solves part 2', expectedResult(2, '149220'));
     });
 });
