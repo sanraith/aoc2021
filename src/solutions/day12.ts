@@ -2,6 +2,8 @@ import { regexMatches } from '../core/helpers';
 import SolutionBase from '../core/solutionBase';
 import { solutionInfo } from '../core/solutionInfo';
 
+type CaveSystem = { map: Map<number, number[]>; start: number; end: number; };
+
 @solutionInfo({
     day: 12,
     title: 'Passage Pathing'
@@ -9,25 +11,19 @@ import { solutionInfo } from '../core/solutionInfo';
 export class Day12 extends SolutionBase {
 
     protected part1(): number {
-        const { map, start, end } = this.parseInput();
-        const pathCount = this.findPathCount(start, start, end, map, new Set([start]), 1);
-
-        return pathCount;
+        return this.findPathCount(this.parseCaveSystem(), 1);
     }
 
     protected part2(): number {
-        const { map, start, end } = this.parseInput();
-        const pathCount = this.findPathCount(start, start, end, map, new Set([start]));
-
-        return pathCount;
+        return this.findPathCount(this.parseCaveSystem());
     }
 
-    private findPathCount(
-        start: number, current: number, target: number,
-        map: Map<number, number[]>,
-        visited: Set<number>,
-        repeatedCave = 0
-    ) {
+    private findPathCount(caveSystem: CaveSystem, repeatedCave = 0, current?: number, visited?: Set<number>): number {
+        const { map, start, end } = caveSystem;
+        if (!current || !visited) {
+            return this.findPathCount(caveSystem, repeatedCave, start, new Set([start]));
+        }
+
         let pathCount = 0;
         const options = map.get(current)!;
         for (const next of options) {
@@ -40,10 +36,10 @@ export class Day12 extends SolutionBase {
             }
 
             visited.add(next);
-            if (next === target) {
+            if (next === end) {
                 pathCount++;
             } else {
-                pathCount += this.findPathCount(start, next, target, map, visited, nextRepeatedCave);
+                pathCount += this.findPathCount(caveSystem, nextRepeatedCave, next, visited);
             }
             if (nextRepeatedCave !== next) { visited.delete(next); }
         }
@@ -52,19 +48,13 @@ export class Day12 extends SolutionBase {
     }
 
     /** Creates a map of caves where small caves are <0 and large caves are >0. */
-    private parseInput() {
-        const caves = regexMatches(/(\w+)-(\w+)/g, this.input).map(([, a, b]) => ({ a, b }));
-
+    private parseCaveSystem(): CaveSystem {
         let caveCount = 0;
-        const caveIds: Record<string, number> = {};
-        const map = new Map<number, number[]>();
-        for (const { a, b } of caves) {
-            if (!caveIds[a]) { caveIds[a] = ++caveCount * (a[0].toUpperCase() === a[0] ? 1 : -1); }
-            if (!caveIds[b]) { caveIds[b] = ++caveCount * (b[0].toUpperCase() === b[0] ? 1 : -1); }
-
-            if (!map.has(caveIds[a])) { map.set(caveIds[a], []); }
-            if (!map.has(caveIds[b])) { map.set(caveIds[b], []); }
-
+        const connections = regexMatches(/(\w+)-(\w+)/g, this.input).map(([, a, b]) => [a, b]);
+        const caves = [...new Set(connections.flat())];
+        const caveIds = Object.fromEntries(caves.map(c => [c, ++caveCount * (c[0].toUpperCase() === c[0] ? 1 : -1)]));
+        const map = new Map<number, number[]>(caves.map(x => [caveIds[x], []]));
+        for (const [a, b] of connections) {
             map.get(caveIds[a])!.push(caveIds[b]);
             map.get(caveIds[b])!.push(caveIds[a]);
         }
