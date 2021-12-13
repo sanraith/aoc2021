@@ -91,7 +91,7 @@ export default function Day13Fold(): JSX.Element {
                 showLineRef.current = false;
                 setStep((stepIndex + 1) % visData.steps.length);
                 return;
-            } else {
+            } else if (!showLineRef.current && Math.min(vw, vh) * 2 >= Math.max(vw, vh)) {
                 showLineRef.current = true;
             }
             setTimeout(() => redraw(), 100);
