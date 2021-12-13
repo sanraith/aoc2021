@@ -26,15 +26,14 @@ export class Day13 extends SolutionBase {
     }
 
     private fold(points: Point[], fold: Point): Point[] {
-        let foldedPoints = points.map(p => ({
+        const duplicates = new Set<string>();
+        const foldedPoints = points.map(p => ({
             x: fold.x && p.x > fold.x ? p.x - (p.x - fold.x) * 2 : p.x,
             y: fold.y && p.y > fold.y ? p.y - (p.y - fold.y) * 2 : p.y
-        }));
-
-        // Keep distinct points only
-        foldedPoints = [...new Set(foldedPoints.map(p => `${p.x},${p.y}`))]
-            .map(s => s.split(','))
-            .map(ps => ({ x: parseInt(ps[0]), y: parseInt(ps[1]) }));
+        })).filter(p => {
+            const pointStr = `${p.x},${p.y}`;
+            return duplicates.has(pointStr) ? false : duplicates.add(pointStr);
+        });
 
         return foldedPoints;
     }
@@ -43,7 +42,7 @@ export class Day13 extends SolutionBase {
         const width = points.reduce((a, p) => Math.max(a, p.x), -1) + 1;
         const height = points.reduce((a, p) => Math.max(a, p.y), -1) + 1;
         const image = Array(height).fill(0).map(() => Array(width).fill(' '));
-        points.forEach(p => image[p.y][p.x] = '#');
+        points.forEach(p => image[p.y][p.x] = '█');
 
         return image.map(line => line.join('')).join('\n');
     }

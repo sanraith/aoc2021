@@ -231,6 +231,12 @@
 .popup-part-result {
     grid-column: cmiddle;
 }
+.popup-part-result span {
+    display: inline-block;
+    font-family: monospace;
+    font-size: 0.25em;
+    white-space: pre;
+}
 .popup-part-performance {
     grid-column: cright;
     justify-self: end;

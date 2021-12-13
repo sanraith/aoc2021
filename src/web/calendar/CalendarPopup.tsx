@@ -58,6 +58,10 @@ export default function CalendarPopup(params: Params): JSX.Element {
         return () => window.removeEventListener('resize', onDocumentResize);
     }, [isOpen, updatePopupRect]);
 
+    /** Update popup size after results have changed */
+    const stateKinds = runtimeSolution?.states.map(x => x.kind).join(',');
+    useEffect(() => updatePopupRect('opened'), [stateKinds, updatePopupRect]);
+
     /** Turn the timer on if the solution is in progress, off otherwise. */
     if (runtimeSolution) {
         if (!stopTimer.current && isOpen && runtimeSolution.states.some(x => x.kind === 'progress')) {
@@ -120,7 +124,7 @@ export default function CalendarPopup(params: Params): JSX.Element {
                                 Part {partIndex + 1}:
                             </div>
                             <div className='popup-part-result fade'>
-                                {result}
+                                {result?.includes('\n') ? (<span>{result}</span>) : result}
                             </div>
                             <div className='popup-part-performance fade'>
                                 <Timer valueMs={timeMs} />
