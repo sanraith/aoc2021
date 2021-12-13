@@ -29,13 +29,24 @@ fold along y=7
 fold along x=5`));
 
         it('solves part 1', expectedResult(1, '17'));
-        xit('solves part 2', expectedResult(2, 'Day13Part2'));
+        it('solves part 2', expectedResult(2, `
+#####
+#   #
+#   #
+#   #
+#####`));
     });
 
     describe('for puzzle input', function () {
         beforeAll(setupSolution());
 
-        xit('solves part 1', expectedResult(1, 'Day13Part1'));
-        xit('solves part 2', expectedResult(2, 'Day13Part2'));
+        it('solves part 1', expectedResult(1, '693'));
+        it('solves part 2', expectedResult(2, `
+#  #  ##  #    #### ###   ##  #### #  #
+#  # #  # #       # #  # #  #    # #  #
+#  # #    #      #  #  # #  #   #  #  #
+#  # #    #     #   ###  ####  #   #  #
+#  # #  # #    #    # #  #  # #    #  #
+ ##   ##  #### #### #  # #  # ####  ## `));
     });
 });
