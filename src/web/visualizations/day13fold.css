@@ -1,0 +1,24 @@
+.foldContainer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background-color: white;
+    user-select: none;
+}
+
+.statusBar {
+    position: absolute;
+    color: #00ff00;
+    background-color: #000000;
+    left: 0;
+    top: 0;
+    font-size: 1cm;
+    font-weight: bold;
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+}

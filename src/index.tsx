@@ -1,11 +1,12 @@
 import React, { useContext } from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter, Route, useParams } from 'react-router-dom';
+import { BrowserRouter, Route, Switch, useParams } from 'react-router-dom';
 import './index.css';
 import App from './web/App';
 import reportWebVitals from './reportWebVitals';
 import { container, ContainerContext } from './web/services/container';
 import { EventDay } from './web/calendar/calendarHelpers';
+import Day13Fold from './web/visualizations/day13';
 
 function RouteParser(): null {
     const { routerService } = useContext(ContainerContext);
@@ -36,7 +37,14 @@ ReactDOM.render(
                 <Route path="/day/:page" >
                     <RouteParser />
                 </Route>
-                <App />
+                <Switch>
+                    <Route exact path="/day/13/fold">
+                        <Day13Fold />
+                    </Route>
+                    <Route path="/">
+                        <App />
+                    </Route>
+                </Switch>
             </ContainerContext.Provider>
         </BrowserRouter>
     </React.StrictMode >,

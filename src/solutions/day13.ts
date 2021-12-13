@@ -3,12 +3,14 @@ import SolutionBase from '../core/solutionBase';
 import { solutionInfo } from '../core/solutionInfo';
 
 type Point = { x: number; y: number; };
+export type Day13VisualizationData = { steps: { points: Point[]; fold?: Point; }[]; };
 
 @solutionInfo({
     day: 13,
     title: 'Transparent Origami'
 })
 export class Day13 extends SolutionBase {
+    protected visualizationData?: Day13VisualizationData;
 
     protected part1(): number {
         const manual = this.parseInput();
@@ -18,8 +20,13 @@ export class Day13 extends SolutionBase {
     }
 
     protected part2(): string {
+        this.visualizationData = { steps: [] };
         const manual = this.parseInput();
-        const points = manual.folds.reduce((points, fold) => this.fold(points, fold), manual.points);
+        const points = manual.folds.reduce((points, fold) => {
+            this.visualizationData!.steps.push({ points, fold });
+            return this.fold(points, fold);
+        }, manual.points);
+        this.visualizationData!.steps.push({ points });
         const code = this.draw(points);
 
         return code;
