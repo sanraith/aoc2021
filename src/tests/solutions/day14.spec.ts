@@ -26,13 +26,13 @@ CC -> N
 CN -> C`));
 
         it('solves part 1', expectedResult(1, '1588'));
-        xit('solves part 2', expectedResult(2, 'Day14Part2'));
+        it('solves part 2', expectedResult(2, '2188189693529'));
     });
 
     describe('for puzzle input', function () {
         beforeAll(setupSolution());
 
-        xit('solves part 1', expectedResult(1, 'Day14Part1'));
+        it('solves part 1', expectedResult(1, '2745'));
         xit('solves part 2', expectedResult(2, 'Day14Part2'));
     });
 });
