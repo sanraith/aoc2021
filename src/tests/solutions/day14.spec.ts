@@ -33,6 +33,6 @@ CN -> C`));
         beforeAll(setupSolution());
 
         it('solves part 1', expectedResult(1, '2745'));
-        xit('solves part 2', expectedResult(2, 'Day14Part2'));
+        it('solves part 2', expectedResult(2, '3420801168962'));
     });
 });

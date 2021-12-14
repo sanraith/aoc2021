@@ -33,8 +33,45 @@ export class Day14 extends SolutionBase {
         return mostCommon - leastCommon;
     }
 
-    protected part2(): string | number {
-        this.noSolution();
+    protected part2(): number {
+        const { template, rules } = this.parseInput();
+        const letters = [...new Set([...rules.flatMap(x => x.pair.split('')), ...rules.map(x => x.newElement)])];
+        const combinations = letters.flatMap(a => letters.map(b => a + b)).sort((a, b) => a.localeCompare(b));
+        const letterCounts = Object.fromEntries(letters.map(x => [x, 0]));
+        const combinationCounts = Object.fromEntries(combinations.map(x => [x, 0]));
+
+        template.split('').forEach((c, i, a) => {
+            letterCounts[c]++;
+            if (i < a.length - 1) {
+                combinationCounts[c + a[i + 1]]++;
+            }
+        });
+
+        const extendedRules = Object.fromEntries(rules.map(r => ({
+            ...r,
+            affects: [r.pair[0] + r.newElement, r.newElement + r.pair[1]]
+        })).map(r => [r.pair, r]));
+        for (let step = 0; step < 40; step++) {
+            for (const [key, count] of Object.entries(combinationCounts).filter(([, count]) => count > 0)) {
+                const { affects, newElement } = extendedRules[key];
+                if (!affects) { continue; }
+
+                letterCounts[newElement] += count;
+                combinationCounts[key] -= count;
+                affects.forEach(x => {
+                    combinationCounts[x] += count;
+                });
+            }
+        }
+
+        const commonality = Object.entries(letterCounts)
+            .map(([char, count]) => ({ char, count }))
+            .sort((a, b) => a.count - b.count);
+
+        const leastCommon = commonality[0].count;
+        const mostCommon = commonality[commonality.length - 1].count;
+
+        return mostCommon - leastCommon;
     }
 
     private step(polymer: string, rules: Rule[]) {
