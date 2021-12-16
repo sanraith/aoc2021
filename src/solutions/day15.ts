@@ -56,7 +56,7 @@ export class Day15 extends SolutionBase {
         let iteration = 0;
         const invalidated = new Set<number>([startIndex]);
         while (invalidated.size > 0) {
-            this.updateProgress(Math.min(1, iteration++ / width));
+            this.updateProgress(Math.min(iteration++ / width, .99));
             const currentNodes = [...invalidated.values()].map(x => nodes[x]);
             invalidated.clear();
 
