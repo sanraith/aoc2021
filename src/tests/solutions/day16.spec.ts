@@ -30,7 +30,7 @@ describe('Day16 solution', function () {
 
     describe('for puzzle input', function () {
         beforeAll(setupSolution());
-        xit('solves part 1', expectedResult(1, 'Day16Part1'));
+        it('solves part 1', expectedResult(1, '917'));
         xit('solves part 2', expectedResult(2, 'Day16Part2'));
     });
 });
