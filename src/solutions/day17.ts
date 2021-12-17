@@ -1,12 +1,8 @@
 import SolutionBase from '../core/solutionBase';
 import { solutionInfo } from '../core/solutionInfo';
 
-class Point {
-    constructor(public x: number, public y: number) { }
-    add(other: Point): Point { return new Point(this.x + other.x, this.y + other.y); }
-    isInBounds(p1: Point, p2: Point) { return this.x >= p1.x && this.x <= p2.x && this.y >= p1.y && this.y <= p2.y; }
-    toString(): string { return `${this.x},${this.y}`; }
-}
+type Point = { x: number; y: number; };
+type Simulation = { hit: boolean, missTop: number, missBottom: number; };
 
 @solutionInfo({
     day: 17,
@@ -15,79 +11,83 @@ class Point {
 export class Day17 extends SolutionBase {
 
     protected part1(): number {
-        const target = this.parseInput();
-        // Y0 = 0;
-        // Y1 = Y0 + Ay
-        // Y2 = Y0 + Ay + (Ay - 1)
-        // Y3 = Y0 + Ay + (Ay - 1) + (Ay - 2)
-        // Yn = Y0 + n * Ay - ((n * (n - 1)) / 2
+        const { topLeft, bottomRight } = this.parseInput();
+        const { maxY } = this.searchMaxY(topLeft, bottomRight);
 
-        let highest = 0;
-        for (let a = 0; a < 1000; a++) {
-            const { hits, highest: highest1 } = this.search(0, a, target.bottomRight.y, target.topLeft.y);
-            if (hits.length > 0) {
-                highest = highest1;
-            }
-        }
-
-        return highest;
+        return maxY;
     }
-
 
     protected part2(): number {
         const { bottomRight, topLeft } = this.parseInput();
-        let maxAY = 0;
-        for (let a = 0; a < 1000; a++) {
-            const { hits } = this.search(0, a, bottomRight.y, topLeft.y);
-            if (hits.length > 0) {
-                maxAY = a;
+        const minAy = bottomRight.y;
+        const { maxAy } = this.searchMaxY(topLeft, bottomRight);
+
+        let hitCount = 0;
+        for (let aY = minAy; aY <= maxAy; aY++) {
+            for (let aX = 0; aX <= bottomRight.x; aX++) {
+                if (this.isHit(aX, aY, topLeft, bottomRight)) {
+                    hitCount++;
+                }
             }
         }
 
-        let count = 0;
-        for (let aX = 0; aX < 1000; aX++) {
-            this.updateProgress(aX / 1000);
-            for (let aY = -2 * maxAY; aY <= maxAY; aY++) {
-                if (this.simulate(aX, aY, topLeft, bottomRight)) { count++; }
-            }
-        }
-
-        return count;
+        return hitCount;
     }
 
-    private simulate(aX: number, aY: number, t1: Point, t2: Point) {
+    private isHit(aX: number, aY: number, tl: Point, br: Point) {
         let x = 0;
         let y = 0;
-        let n = 0;
-        while (n < 1000) {
+        while (!((aY < 0 && y < br.y) || x > br.x || (aX === 0 && x < tl.x))) {
             x += aX;
             y += aY;
-            if (x >= t2.x && x <= t1.x && y >= t2.y && y <= t1.y) {
+            if (x >= tl.x && x <= br.x && y >= br.y && y <= tl.y) {
                 return true;
             }
             aX = Math.max(0, aX - 1);
             aY = aY - 1;
-            n++;
         }
+
         return false;
     }
 
-    private search(y: number, aY: number, minY: number, maxY: number) {
-        let yN = 0;
-        let n = 0;
-        let beforeHit = maxY + 1;
-        let afterOrHit = minY - 1;
-        let highest = Number.MIN_SAFE_INTEGER;
-        const hits = [];
-        while (yN >= minY) {
-            yN = y + n * aY - Math.floor((n * (n - 1)) / 2);
-            n++;
-            if (yN > highest) { highest = yN; }
-            if (yN > maxY) { beforeHit = yN; }
-            if (yN < minY) { afterOrHit = yN; }
-            if (yN <= maxY && yN >= minY) { hits.push({ n, yN }); }
+    private searchMaxY(tl: Point, br: Point) {
+        let maxAy = -1;
+        let canGoHigher = true;
+        let prev: Simulation = undefined!;
+        let maxY = Number.MIN_SAFE_INTEGER;
+        while (canGoHigher) {
+            maxAy++;
+            const simulation = this.simulateY(maxAy, tl, br);
+            if (simulation.hit) { maxY = Math.max(maxY, simulation.maxY); }
+            canGoHigher = simulation.hit || !prev || !(!prev.hit &&
+                prev.missTop <= simulation.missTop &&
+                prev.missBottom >= simulation.missBottom);
+            prev = simulation;
         }
-        return ({ highest, firstBefore: beforeHit, firstAfterOrLast: afterOrHit, hits });
+
+        return { maxAy, maxY };
+    }
+
+    private simulateY(maxAy: number, tl: Point, br: Point) {
+        let y = 0;
+        let aY = maxAy;
+        let hit = false;
+        let missTop = 0;
+        let missBottom = 0;
+        let maxY = Number.MIN_SAFE_INTEGER;
+        while (!((aY < 0 && y < br.y))) {
+            y += aY;
+            maxY = Math.max(maxY, y);
+            if (y >= br.y && y <= tl.y) {
+                hit = true;
+                break;
+            }
+            if (y > tl.y) { missTop = y; }
+            aY = aY - 1;
+        }
+        if (y < br.y) { missBottom = y; }
+
+        return { hit, missTop, missBottom, maxY };
     }
 
     private parseInput() {
@@ -95,6 +95,6 @@ export class Day17 extends SolutionBase {
             .match(/target area: x=(-?\d+)\.\.(-?\d+), y=(-?\d+)\.\.(-?\d+)/) ?? [])
             .slice(1).map(x => parseInt(x));
 
-        return { topLeft: new Point(x2, y2), bottomRight: new Point(x1, y1) };
+        return { topLeft: { x: x1, y: y2 }, bottomRight: { x: x2, y: y1 } };
     }
 }
