@@ -66,7 +66,7 @@ export class Day16 extends SolutionBase {
 
     private parseLiteralPacket(match: RegExpExecArray, flatPackets: Packet[]) {
         const { version, data } = match.groups!;
-        const packet = <LiteralPacket>{
+        const packet: LiteralPacket = {
             kind: 'literal',
             version: parseInt(version, 2),
             value: parseInt(regexMatches(/\d{5}/g, data).map(x => x[0].slice(1)).join(''), 2)
@@ -79,7 +79,7 @@ export class Day16 extends SolutionBase {
     private parseOperatorPacket(binary: string, match: RegExpExecArray, flatPackets: Packet[]) {
         const { version, operator, length, count } = match.groups!;
         const headerLength = match[0].length;
-        const packet = <OperatorPacket>{
+        const packet: OperatorPacket = {
             kind: 'operator',
             version: parseInt(version, 2),
             operator: parseInt(operator, 2),
