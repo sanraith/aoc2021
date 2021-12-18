@@ -24,8 +24,8 @@ type SnailNumber = SnailGroup | SnailValue;
 export class Day18 extends SolutionBase {
 
     protected part1(): number {
-        const snailNumbers = this.parseInput();
-        const sum = snailNumbers.reduce((a, x) => this.add(a, x));
+        const numbers = this.parseInput();
+        const sum = numbers.reduce((a, x) => this.add(a, x));
         const magnitude = this.magnitude(sum);
 
         return magnitude;
@@ -33,14 +33,14 @@ export class Day18 extends SolutionBase {
 
     protected part2(): number {
         let maxMagnitude = Number.MIN_SAFE_INTEGER;
+        const numbers = this.parseInput();
         for (let i = 0; i < this.inputLines.length; i++) {
             this.updateProgress(i / this.inputLines.length);
             for (let j = 0; j < this.inputLines.length; j++) {
                 if (i === j) { continue; }
-
-                // the 'add' operation mutates, so it is easier to just re-parse the numbers
-                const snailNumbers = this.parseInput();
-                const magnitude = this.magnitude(this.add(snailNumbers[i], snailNumbers[j]));
+                const a = this.clone(numbers[i]);
+                const b = this.clone(numbers[j]);
+                const magnitude = this.magnitude(this.add(a, b));
                 maxMagnitude = Math.max(maxMagnitude, magnitude);
             }
         }
@@ -111,11 +111,11 @@ export class Day18 extends SolutionBase {
         sn.parent.items[sn.sideInParent!] = this.createSnailValue(0, sn.parent, sn.sideInParent!);
     }
 
-    private split(sn: SnailValue): void {
-        const group = sn as unknown as SnailGroup; // Convert into group
-        group.kind = 'group';
-        group.items = [Math.floor(sn.value / 2), Math.ceil(sn.value / 2)]
-            .map((value, sideInParent) => this.createSnailValue(value, group, sideInParent));
+    private split(sv: SnailValue): void {
+        const sg = sv as unknown as SnailGroup; // Convert into group
+        sg.kind = 'group';
+        sg.items = [Math.floor(sv.value / 2), Math.ceil(sv.value / 2)]
+            .map((value, sideInParent) => this.createSnailValue(value, sg, sideInParent));
     }
 
     private findRegularNeighbor(sv: SnailValue, side: 0 | 1): SnailValue | null {
@@ -166,19 +166,23 @@ export class Day18 extends SolutionBase {
         return pair.items[0];
     }
 
+    private clone(sn: SnailNumber, parent?: SnailGroup) {
+        parent ??= sn.parent;
+        if (sn.kind === 'value') {
+            return this.createSnailValue(sn.value, parent!, sn.sideInParent);
+        }
+
+        const clonedGroup = this.createSnailGroup([], parent, sn.sideInParent);
+        sn.items.forEach(x => clonedGroup.items.push(this.clone(x, clonedGroup)));
+
+        return clonedGroup;
+    }
+
     private createSnailGroup(items: SnailNumber[], parent?: SnailGroup, sideInParent?: number) {
         return <SnailGroup>{ kind: 'group', items, parent, sideInParent };
     }
 
     private createSnailValue(value: number, parent: SnailGroup, sideInParent: number) {
         return <SnailValue>{ kind: 'value', value, parent, sideInParent };
-    }
-
-    private asString(sn: SnailNumber): string {
-        if (sn.kind === 'value') {
-            return sn.value.toString();
-        } else {
-            return '[' + sn.items.map(x => this.asString(x)).join(',') + ']';
-        }
     }
 }
