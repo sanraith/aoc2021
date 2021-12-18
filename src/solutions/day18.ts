@@ -55,16 +55,16 @@ export class Day18 extends SolutionBase {
 
     private add(sn1: SnailNumber, sn2: SnailNumber): SnailGroup {
         const result: SnailGroup = this.createSnailGroup([sn1, sn2]);
-        sn1.parent = result;
-        sn1.sideInParent = 0;
-        sn2.parent = result;
-        sn2.sideInParent = 1;
+        result.items.forEach((sn, i) => {
+            sn.parent = result;
+            sn.sideInParent = i as 0 | 1;
+        });
 
-        let hasReduced = true;
-        while (hasReduced) {
-            hasReduced = this.explodeIfNeeded(result);
-            if (hasReduced) { continue; }
-            hasReduced = this.splitIfNeeded(result);
+        let isReduceNeeded = true;
+        while (isReduceNeeded) {
+            isReduceNeeded = this.explodeIfNeeded(result);
+            if (isReduceNeeded) { continue; }
+            isReduceNeeded = this.splitIfNeeded(result);
         }
 
         return result;
@@ -79,11 +79,7 @@ export class Day18 extends SolutionBase {
             return false;
         }
 
-        for (const child of sn.items) {
-            if (this.splitIfNeeded(child)) { return true; }
-        }
-
-        return false;
+        return sn.items.some(child => this.splitIfNeeded(child));
     }
 
     private explodeIfNeeded(sn: SnailNumber, level = 0): boolean {
@@ -94,17 +90,13 @@ export class Day18 extends SolutionBase {
             return true;
         }
 
-        for (const child of sn.items) {
-            if (this.explodeIfNeeded(child, level + 1)) { return true; }
-        }
-
-        return false;
+        return sn.items.some(child => this.explodeIfNeeded(child, level + 1));
     }
 
     private explode(sn: SnailGroup): void {
         for (const side of [0, 1] as const) {
-            const neighbor = this.findRegularNeighbor(sn.items[side] as SnailValue, side);
-            if (neighbor) { neighbor.value += (sn.items[side] as SnailValue).value; }
+            const sibling = this.findValueSibling(sn.items[side] as SnailValue, side);
+            if (sibling) { sibling.value += (sn.items[side] as SnailValue).value; }
         }
 
         if (!sn.parent) { throw new Error('No parent for exploding pair!'); }
@@ -118,14 +110,14 @@ export class Day18 extends SolutionBase {
             .map((value, sideInParent) => this.createSnailValue(value, sg, sideInParent));
     }
 
-    private findRegularNeighbor(sv: SnailValue, side: 0 | 1): SnailValue | null {
+    private findValueSibling(sv: SnailValue, side: 0 | 1): SnailValue | null {
         // go up until we can step towards the given side
         let sn: SnailNumber = sv;
-        let neighbor: SnailNumber | undefined = undefined;
-        while (!neighbor) {
+        let sibling: SnailNumber | undefined = undefined;
+        while (!sibling) {
             if (!sn.parent) { return null; }
             if (sn.sideInParent !== side) {
-                neighbor = sn.parent.items[side];
+                sibling = sn.parent.items[side];
             } else {
                 sn = sn.parent;
             }
@@ -133,18 +125,18 @@ export class Day18 extends SolutionBase {
 
         // Go down until we find a value
         const sideInverse = side === 0 ? 1 : 0;
-        while (neighbor.kind !== 'value') {
-            neighbor = neighbor.items[sideInverse];
+        while (sibling.kind !== 'value') {
+            sibling = sibling.items[sideInverse];
         }
 
-        return neighbor;
+        return sibling;
     }
 
     private parseInput(): SnailNumber[] {
         return this.inputLines.map(line => this.parseSnailNumber(line));
     }
 
-    private parseSnailNumber(text: string) {
+    private parseSnailNumber(text: string): SnailNumber {
         const stack: SnailGroup[] = [];
         let prevPair: SnailGroup;
         let pair: SnailGroup = this.createSnailGroup([]);
@@ -166,7 +158,7 @@ export class Day18 extends SolutionBase {
         return pair.items[0];
     }
 
-    private clone(sn: SnailNumber, parent?: SnailGroup) {
+    private clone(sn: SnailNumber, parent?: SnailGroup): SnailNumber {
         parent ??= sn.parent;
         if (sn.kind === 'value') {
             return this.createSnailValue(sn.value, parent!, sn.sideInParent);
@@ -178,11 +170,11 @@ export class Day18 extends SolutionBase {
         return clonedGroup;
     }
 
-    private createSnailGroup(items: SnailNumber[], parent?: SnailGroup, sideInParent?: number) {
+    private createSnailGroup(items: SnailNumber[], parent?: SnailGroup, sideInParent?: number): SnailGroup {
         return <SnailGroup>{ kind: 'group', items, parent, sideInParent };
     }
 
-    private createSnailValue(value: number, parent: SnailGroup, sideInParent: number) {
+    private createSnailValue(value: number, parent: SnailGroup, sideInParent: number): SnailValue {
         return <SnailValue>{ kind: 'value', value, parent, sideInParent };
     }
 }
