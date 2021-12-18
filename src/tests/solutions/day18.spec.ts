@@ -18,13 +18,13 @@ describe('Day18 solution', function () {
 [[[[5,2],5],[8,[3,7]]],[[5,[7,5]],[4,4]]]`));
 
         it('solves part 1', expectedResult(1, '4140'));
-        xit('solves part 2', expectedResult(2, 'Day18Part2'));
+        it('solves part 2', expectedResult(2, '3993'));
     });
 
     describe('for puzzle input', function () {
         beforeAll(setupSolution());
 
-        xit('solves part 1', expectedResult(1, 'Day18Part1'));
-        xit('solves part 2', expectedResult(2, 'Day18Part2'));
+        it('solves part 1', expectedResult(1, '3486'));
+        it('solves part 2', expectedResult(2, '4747'));
     });
 });
