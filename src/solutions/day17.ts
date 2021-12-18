@@ -19,8 +19,8 @@ export class Day17 extends SolutionBase {
 
     protected part2(): number {
         const { bottomRight, topLeft } = this.parseInput();
-        const minAy = bottomRight.y;
         const { maxAy } = this.searchMaxY(topLeft, bottomRight);
+        const minAy = bottomRight.y;
 
         let hitCount = 0;
         for (let aY = minAy; aY <= maxAy; aY++) {
