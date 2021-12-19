@@ -14,13 +14,6 @@ function regexMatches(regex: RegExp, text: string): RegExpExecArray[] {
     return results;
 }
 
-function* regexMatchesLazy(regex: RegExp, text: string): Generator<RegExpExecArray, void, unknown> {
-    let record: RegExpExecArray | null;
-    while ((record = regex.exec(text))) {
-        yield record;
-    }
-}
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function assertNever(value: never, shouldThrow = true): void | never {
     if (shouldThrow) {
@@ -41,12 +34,16 @@ function intersectSets<T>(a: Set<T>, b: Set<T>): Set<T> {
     return new Set([...a].filter(x => b.has(x)));
 }
 
+function toRadians(angle: number): number {
+    return angle * (Math.PI / 180);
+}
+
 export {
     assertNever,
     regexMatches,
-    regexMatchesLazy,
     get2DigitDay,
     xor,
-    intersectSets
+    intersectSets,
+    toRadians
 };
 
