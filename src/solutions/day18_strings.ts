@@ -4,7 +4,7 @@ import SolutionBase from '../core/solutionBase';
     day: 18,
     title: 'Snailfish'
 })*/
-export class Day18 extends SolutionBase {
+export class Day18_Strings extends SolutionBase {
     protected part1(): number {
         const numbers = this.inputLines.slice();
         const result = numbers.reduce((a, b) => this.reduce(`[${a},${b}]`));
