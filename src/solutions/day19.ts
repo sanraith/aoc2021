@@ -1,15 +1,16 @@
-import { off } from 'process';
 import { regexMatches, toRadians } from '../core/helpers';
 import SolutionBase from '../core/solutionBase';
 import { solutionInfo } from '../core/solutionInfo';
 
 class Point {
     constructor(public x: number, public y: number, public z: number) { }
-    add(p2: Point): Point { return new Point(this.x + p2.x, this.y + p2.y, this.z + p2.z); }
-    sub(p2: Point): Point { return new Point(this.x - p2.x, this.y - p2.y, this.z - p2.z); }
-    manhattan(p2: Point): number { return Math.abs(this.x - p2.x) + Math.abs(this.y - p2.y) + Math.abs(this.z - p2.z); }
+
+    add(p: Point): Point { return new Point(this.x + p.x, this.y + p.y, this.z + p.z); }
+    sub(p: Point): Point { return new Point(this.x - p.x, this.y - p.y, this.z - p.z); }
+    manhattan(p: Point): number { return Math.abs(this.x - p.x) + Math.abs(this.y - p.y) + Math.abs(this.z - p.z); }
+    equal(p: Point): boolean { return this.x === p.x && this.y === p.y && this.z === p.z; }
+
     toString(): string { return `${this.x},${this.y},${this.z}`; }
-    equal(p2: Point): boolean { return this.x === p2.x && this.y === p2.y && this.z === p2.z; }
 
     vector(): number[][] { return [[this.x], [this.y], [this.z]]; }
     static from(vector: number[][]): Point {
@@ -19,7 +20,7 @@ class Point {
 }
 
 type Scanner = { id: number, points: Point[]; relativeDistances: number[][]; offset: Point; };
-type Overlap = { p1: Point, p2: Point, p1Index: number, p2Index: number; };
+type Overlap = { p1Index: number, p2Index: number; };
 const origin = new Point(0, 0, 0);
 const overlapThreshold = 12 as const;
 
@@ -29,47 +30,31 @@ const overlapThreshold = 12 as const;
 })
 export class Day19 extends SolutionBase {
 
-    rotations: number[][][];
-
-    constructor() {
-        super();
-
-        // Rotation matrices for each angle
-        const rotationAngles: readonly number[] = [0, 90, 180, 270].map(d => toRadians(d));
-        const xrs = rotationAngles.map(a => this.Rx(a));
-        const yrs = rotationAngles.map(a => this.Ry(a));
-        const zrs = rotationAngles.map(a => this.Rz(a));
-
-        // Rotation combinations
-        const duplicates = new Set<string>();
-        const rotations = xrs
-            .flatMap(rx => yrs.map(ry => [rx, ry]))
-            .flatMap(([rx, ry]) => zrs.map(rz => [rx, ry, rz]))
-            .map(t => t.reduce((a, x) => this.multiply(a, x)))
-            .filter(t => !duplicates.has(t.join(';')) && duplicates.add(t.join(';')));
-        this.rotations = rotations;
-    }
+    rotations: number[][][] = this.createRotationMatrixes();
+    orientedScanners: Scanner[] = [];
 
     protected part1(): number {
         const scanners = this.parseInput();
-        const pairs = this.pairs(scanners)
-            .map(([a, b]) => ({ a, b, overlaps: this.overlap(a, b) }))
-            .filter(x => x.overlaps.length > 0);
-
-        console.log(pairs.map(x => x.a.id + ',' + x.b.id));
+        const pairs = this.unorderedPairs(scanners)
+            .map(([a, b], index, arr) => {
+                this.updateProgress(index / arr.length);
+                return { a, b, overlap: this.overlap(a, b) as Overlap };
+            })
+            .filter(x => x.overlap)
+            .flatMap(p => [p, { // add reversed pairs as well
+                a: p.b, b: p.a,
+                overlap: { p1Index: p.overlap.p2Index, p2Index: p.overlap.p1Index }
+            }]);
 
         const oriented = new Set<number>([0]);
         while (oriented.size < scanners.length) {
             const pairIndex = pairs.findIndex(p => oriented.has(p.a.id) && !oriented.has(p.b.id));
-            const pair = pairs[pairIndex];
-            for (const overlap of pair.overlaps) {
-                if (this.reorient(pair.a, pair.b, overlap)) {
-                    break;
-                }
-            }
-            oriented.add(pair.b.id);
+            const { a, b, overlap } = pairs[pairIndex];
+            this.reorient(a, b, overlap);
+            oriented.add(b.id);
             pairs.splice(pairIndex, 1);
         }
+        this.orientedScanners = scanners;
 
         const pointSet = new Set<string>();
         scanners.forEach(s => s.points.forEach(p => pointSet.add(p.toString())));
@@ -78,45 +63,27 @@ export class Day19 extends SolutionBase {
     }
 
     protected part2(): number {
-        const scanners = this.parseInput();
-        const pairs = this.pairs(scanners)
-            .map(([a, b]) => ({ a, b, overlaps: this.overlap(a, b) }))
-            .filter(x => x.overlaps.length > 0);
-
-        console.log(pairs.map(x => x.a.id + ',' + x.b.id));
-
-        const oriented = new Set<number>([0]);
-        while (oriented.size < scanners.length) {
-            const pairIndex = pairs.findIndex(p => oriented.has(p.a.id) && !oriented.has(p.b.id));
-            const pair = pairs[pairIndex];
-            for (const overlap of pair.overlaps) {
-                if (this.reorient(pair.a, pair.b, overlap)) {
-                    break;
-                }
-            }
-            oriented.add(pair.b.id);
-            pairs.splice(pairIndex, 1);
-        }
-
-        const maxDistance = this.pairs(scanners).reduce((max, pair) => {
-            const distance = pair[0].offset.manhattan(pair[1].offset);
-            return distance > max ? distance : max;
-        }, Number.MIN_SAFE_INTEGER);
+        const maxDistance = this.unorderedPairs(this.orientedScanners)
+            .reduce((max, pair) => {
+                const distance = pair[0].offset.manhattan(pair[1].offset);
+                return distance > max ? distance : max;
+            }, Number.MIN_SAFE_INTEGER);
 
         return maxDistance;
     }
 
+    /** Reorients s2 using s1 as origin based on the given overlap data. */
     private reorient(s1: Scanner, s2: Scanner, overlap: Overlap): boolean {
         const { p1Index, p2Index } = overlap;
         const p1 = s1.points[p1Index];
         for (const rotation of this.rotations) {
-            let rotatedPoints = s2.points.map(p => Point.from(this.multiply(rotation, p.vector())));
+            const rotatedPoints = s2.points.map(p => Point.from(this.multiply(rotation, p.vector())));
             const offset = p1.sub(rotatedPoints[p2Index]);
-            rotatedPoints = rotatedPoints.map(p => p.add(offset));
-            const commonCount = rotatedPoints.reduce((a, s2p) => a + (s1.points.some(s1p => s1p.equal(s2p)) ? 1 : 0), 0);
-            if (commonCount >= overlapThreshold) {
-                console.log(`Reoriented ${s2.id} based on ${s1.id}!`);
-                s2.points = rotatedPoints;
+            const offsetPoints = rotatedPoints.map(p => p.add(offset));
+
+            const overlapCount = offsetPoints.reduce((a, p) => a + (s1.points.some(s1p => s1p.equal(p)) ? 1 : 0), 0);
+            if (overlapCount >= overlapThreshold) {
+                s2.points = offsetPoints;
                 s2.offset = offset;
                 return true;
             }
@@ -125,40 +92,40 @@ export class Day19 extends SolutionBase {
         return false;
     }
 
-    private pairs<T>(items: T[]): [T, T][] {
+    /** Creates unordered pair combinations of the given items. */
+    private unorderedPairs<T>(items: T[]): [T, T][] {
         const length = items.length;
-        const result: [T, T][] = [];
+        const pairs: [T, T][] = [];
         for (let i = 0; i < length; i++) {
             const a = items[i];
-            for (let j = 0; j < length; j++) {
-                if (i === j) { continue; }
-                result.push([a, items[j]]);
+            for (let j = i + 1; j < length; j++) {
+                pairs.push([a, items[j]]);
             }
         }
 
-        return result;
+        return pairs;
     }
 
-    /** Not 100% accurate, but probably good enough for the puzzle. */
-    private overlap(s1: Scanner, s2: Scanner): Overlap[] {
-        const candidates: Overlap[] = [];
+    /**
+     * Finds an overlap between two scanners by comparing relative distances of points within each.
+     * Returning only the first hit is not 100% accurate, but good enough for the puzzle.
+     * */
+    private overlap(s1: Scanner, s2: Scanner): Overlap | false {
         for (let i = 0; i < s1.relativeDistances.length; i++) {
             const r1 = s1.relativeDistances[i];
             for (let j = 0; j < s2.relativeDistances.length; j++) {
                 const r2 = s2.relativeDistances[j];
                 const overlap = this.intersectSorted(r1, r2);
                 if (overlap.length >= overlapThreshold - 1) {
-                    candidates.push({
-                        p1: s1.points[i], p2: s2.points[j],
-                        p1Index: i, p2Index: j
-                    });
+                    return { p1Index: i, p2Index: j };
                 }
             }
         }
 
-        return candidates;
+        return false;
     }
 
+    /** Returns the intersection of two ascending number arrays. */
     private intersectSorted(a: number[], b: number[]) {
         const result: number[] = [];
         let bIndex = 0;
@@ -181,13 +148,34 @@ export class Day19 extends SolutionBase {
                 .map(m => m.slice(1).map(x => parseInt(x)))
                 .map(([x, y, z]) => new Point(x, y, z));
             const relativeDistances = points.map(p1 => points.map(p2 => p1.manhattan(p2)).sort((a, b) => a - b).slice(1));
-            return { id, points, relativeDistances, offset: new Point(0, 0, 0) };
+            return { id, points, relativeDistances, offset: origin };
         });
 
         return scanners;
     }
 
-    // Matrices
+    // Matrixes
+
+    /** Creates rotation matrixes for each possible 90°-based orientation. */
+    private createRotationMatrixes() {
+        // Individual rotations on each axes
+        const rotationAngles: readonly number[] = [0, 90, 180, 270].map(d => toRadians(d));
+        const xrs = rotationAngles.map(a => this.Rx(a));
+        const yrs = rotationAngles.map(a => this.Ry(a));
+        const zrs = rotationAngles.map(a => this.Rz(a));
+
+        // Rotation combinations
+        const duplicates = new Set<string>();
+        const rotations = xrs
+            .flatMap(rx => yrs.map(ry => [rx, ry]))
+            .flatMap(([rx, ry]) => zrs.map(rz => [rx, ry, rz]))
+            .map(t => t.reduce((a, x) => this.multiply(a, x)))
+            .filter(t => !duplicates.has(t.join(';')) && duplicates.add(t.join(';')));
+
+        return rotations;
+    }
+
+    /** Multiplies the 2 matrixes. */
     private multiply(m1: number[][], m2: number[][]) {
         const height = m1.length;
         const width = m2[0].length;
@@ -200,18 +188,12 @@ export class Day19 extends SolutionBase {
 
         return result;
     }
+
+    // Rotation matrix generators for each axes
     private Rx(r: number) { return this.intMatrix([[1, 0, 0], [0, Math.cos(r), -Math.sin(r)], [0, Math.sin(r), Math.cos(r)]]); }
     private Ry(r: number) { return this.intMatrix([[Math.cos(r), 0, Math.sin(r)], [0, 1, 0], [-Math.sin(r), 0, Math.cos(r)]]); }
     private Rz(r: number) { return this.intMatrix([[Math.cos(r), -Math.sin(r), 0], [Math.sin(r), Math.cos(r), 0], [0, 0, 1]]); }
-    private intMatrix(matrix: number[][]) {
-        return matrix.map(line => line.map(x => {
-            const whole = x < 0 ? Math.ceil(x) : Math.floor(x);
-            if (Math.abs(x - whole) < .00001) {
-                return whole;
-            } else {
-                console.log(x, whole);
-                throw new Error();
-            }
-        }));
-    }
+
+    /** Converts matrix values into integers. */
+    private intMatrix(matrix: number[][]) { return matrix.map(line => line.map(x => x < 0 ? Math.ceil(x) : Math.floor(x))); }
 }
