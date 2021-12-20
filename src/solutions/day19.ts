@@ -52,7 +52,6 @@ export class Day19 extends SolutionBase {
             const pairIndex = pairs.findIndex(p => oriented.has(p.a.id) && !oriented.has(p.b.id));
             const { a, b, overlap } = pairs[pairIndex];
             this.reorient(a, b, overlap);
-            console.log(`Oriented ${b.id} based on ${a.id}`);
             oriented.add(b.id);
             pairs.splice(pairIndex, 1);
         }
