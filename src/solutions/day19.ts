@@ -12,13 +12,14 @@ class Point {
 
     toString(): string { return `${this.x},${this.y},${this.z}`; }
 
-    vector(): number[][] { return [[this.x], [this.y], [this.z]]; }
-    static from(vector: number[][]): Point {
+    vector(): Matrix { return [[this.x], [this.y], [this.z]]; }
+    static from(vector: Matrix): Point {
         const [[x], [y], [z]] = vector;
         return new Point(x, y, z);
     }
 }
 
+type Matrix = number[][];
 type Scanner = { id: number, points: Point[]; relativeDistances: number[][]; offset: Point; };
 type Overlap = { p1Index: number, p2Index: number; };
 const origin = new Point(0, 0, 0);
@@ -30,7 +31,7 @@ const overlapThreshold = 12 as const;
 })
 export class Day19 extends SolutionBase {
 
-    rotations: number[][][] = this.createRotationMatrixes();
+    rotations: Matrix[] = this.createRotationMatrixes();
     orientedScanners: Scanner[] = [];
 
     protected part1(): number {
@@ -40,7 +41,7 @@ export class Day19 extends SolutionBase {
                 this.updateProgress(index / arr.length);
                 return { a, b, overlap: this.overlap(a, b) as Overlap };
             })
-            .filter(x => x.overlap)
+            .filter(p => p.overlap)
             .flatMap(p => [p, { // add reversed pairs as well
                 a: p.b, b: p.a,
                 overlap: { p1Index: p.overlap.p2Index, p2Index: p.overlap.p1Index }
@@ -51,6 +52,7 @@ export class Day19 extends SolutionBase {
             const pairIndex = pairs.findIndex(p => oriented.has(p.a.id) && !oriented.has(p.b.id));
             const { a, b, overlap } = pairs[pairIndex];
             this.reorient(a, b, overlap);
+            console.log(`Oriented ${b.id} based on ${a.id}`);
             oriented.add(b.id);
             pairs.splice(pairIndex, 1);
         }
@@ -64,10 +66,8 @@ export class Day19 extends SolutionBase {
 
     protected part2(): number {
         const maxDistance = this.unorderedPairs(this.orientedScanners)
-            .reduce((max, pair) => {
-                const distance = pair[0].offset.manhattan(pair[1].offset);
-                return distance > max ? distance : max;
-            }, Number.MIN_SAFE_INTEGER);
+            .reduce((max, [a, b]) => Math.max(max, a.offset.manhattan(b.offset)),
+                Number.MIN_SAFE_INTEGER);
 
         return maxDistance;
     }
@@ -126,7 +126,7 @@ export class Day19 extends SolutionBase {
     }
 
     /** Returns the intersection of two ascending number arrays. */
-    private intersectSorted(a: number[], b: number[]) {
+    private intersectSorted(a: number[], b: number[]): number[] {
         const result: number[] = [];
         let bIndex = 0;
         for (const item of a) {
@@ -140,7 +140,7 @@ export class Day19 extends SolutionBase {
         return result;
     }
 
-    private parseInput() {
+    private parseInput(): Scanner[] {
         const scannerMatches = regexMatches(/--- scanner (\d+) ---\r?\n((?:.*,.*,.*(?:\r?\n)?)*)/g, this.input);
         const scanners = scannerMatches.map(([, idGroup, pointsGroup]) => {
             const id = parseInt(idGroup);
@@ -157,7 +157,7 @@ export class Day19 extends SolutionBase {
     // Matrixes
 
     /** Creates rotation matrixes for each possible 90°-based orientation. */
-    private createRotationMatrixes() {
+    private createRotationMatrixes(): Matrix[] {
         // Individual rotations on each axes
         const rotationAngles: readonly number[] = [0, 90, 180, 270].map(d => toRadians(d));
         const xrs = rotationAngles.map(a => this.Rx(a));
@@ -176,10 +176,10 @@ export class Day19 extends SolutionBase {
     }
 
     /** Multiplies the 2 matrixes. */
-    private multiply(m1: number[][], m2: number[][]) {
+    private multiply(m1: Matrix, m2: Matrix) {
         const height = m1.length;
         const width = m2[0].length;
-        const result: number[][] = Array(height).fill(0).map(() => Array(width));
+        const result: Matrix = Array(height).fill(0).map(() => Array(width));
         for (let row = 0; row < height; row++) {
             for (let col = 0; col < width; col++) {
                 result[row][col] = m1[row].map((x1, i1) => x1 * m2[i1][col]).reduce((a, x) => a + x);
@@ -190,10 +190,10 @@ export class Day19 extends SolutionBase {
     }
 
     // Rotation matrix generators for each axes
-    private Rx(r: number) { return this.intMatrix([[1, 0, 0], [0, Math.cos(r), -Math.sin(r)], [0, Math.sin(r), Math.cos(r)]]); }
-    private Ry(r: number) { return this.intMatrix([[Math.cos(r), 0, Math.sin(r)], [0, 1, 0], [-Math.sin(r), 0, Math.cos(r)]]); }
-    private Rz(r: number) { return this.intMatrix([[Math.cos(r), -Math.sin(r), 0], [Math.sin(r), Math.cos(r), 0], [0, 0, 1]]); }
+    private Rx(r: number): Matrix { return this.intMatrix([[1, 0, 0], [0, Math.cos(r), -Math.sin(r)], [0, Math.sin(r), Math.cos(r)]]); }
+    private Ry(r: number): Matrix { return this.intMatrix([[Math.cos(r), 0, Math.sin(r)], [0, 1, 0], [-Math.sin(r), 0, Math.cos(r)]]); }
+    private Rz(r: number): Matrix { return this.intMatrix([[Math.cos(r), -Math.sin(r), 0], [Math.sin(r), Math.cos(r), 0], [0, 0, 1]]); }
 
     /** Converts matrix values into integers. */
-    private intMatrix(matrix: number[][]) { return matrix.map(line => line.map(x => x < 0 ? Math.ceil(x) : Math.floor(x))); }
+    private intMatrix(matrix: Matrix) { return matrix.map(line => line.map(x => x < 0 ? Math.ceil(x) : Math.floor(x))); }
 }
