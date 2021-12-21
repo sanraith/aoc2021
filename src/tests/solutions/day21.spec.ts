@@ -17,6 +17,6 @@ Player 2 starting position: 8`));
         beforeAll(setupSolution());
 
         it('solves part 1', expectedResult(1, '797160'));
-        xit('solves part 2', expectedResult(2, 'Day21Part2'));
+        it('solves part 2', expectedResult(2, '27464148626406'));
     });
 });
