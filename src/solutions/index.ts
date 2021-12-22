@@ -24,3 +24,4 @@ export * from './day18_strings';
 export * from './day19';
 export * from './day20';
 export * from './day21';
+export * from './day22';

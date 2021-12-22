@@ -46,10 +46,11 @@ export class Day21 extends SolutionBase {
         cache ??= new Map();
         const hash = this.hash(player, pos1, score1, pos2, score2);
         const wins = { p1: 0, p2: 0 };
+        const winningScore = 21;
 
-        if (score1 >= 21) {
+        if (score1 >= winningScore) {
             wins.p1 = 1; cache.set(hash, wins);
-        } else if (score2 >= 21) {
+        } else if (score2 >= winningScore) {
             wins.p2 = 1; cache.set(hash, wins);
         }
 
