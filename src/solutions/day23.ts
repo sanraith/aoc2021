@@ -15,7 +15,7 @@ type MapInfo = {
 
 const EMPTY = '.' as const;
 const [RIGHT, DOWN, LEFT, UP] = [0, 1, 2, 3] as const;
-const costs = { 'A': 1, 'B': 10, 'C': 100, 'D': 1000 } as const;
+const costs: Record<string, number> = { 'A': 1, 'B': 10, 'C': 100, 'D': 1000 } as const;
 
 @solutionInfo({
     day: 23,
@@ -28,7 +28,19 @@ export class Day23 extends SolutionBase {
 
     protected part1(): number {
         const mapInfo = this.parseInput();
-        const shortest = this.findShortest(mapInfo);
+
+        const targetHash = this.hash([
+            { /*type: 'A',*/ pos: this.toIndex(3, 2) },
+            { /*type: 'A',*/ pos: this.toIndex(3, 3) },
+            { /*type: 'B',*/ pos: this.toIndex(5, 2) },
+            { /*type: 'B',*/ pos: this.toIndex(5, 3) },
+            { /*type: 'C',*/ pos: this.toIndex(7, 2) },
+            { /*type: 'C',*/ pos: this.toIndex(7, 3) },
+            { /*type: 'D',*/ pos: this.toIndex(9, 2) },
+            { /*type: 'D',*/ pos: this.toIndex(9, 3) },
+        ]); // 2931333542444648
+
+        const shortest = this.findShortest(mapInfo, targetHash);
         return shortest;
     }
 
@@ -36,42 +48,69 @@ export class Day23 extends SolutionBase {
         this.noSolution();
     }
 
-    private findShortest(mapInfo: MapInfo, visited = new Set<number>(), currentShortest = Number.MAX_SAFE_INTEGER): number {
+    private findShortest(mapInfo: MapInfo, targetHash: number, visited = new Map<number, number>(), cost = 0, min = Number.MAX_SAFE_INTEGER): number {
+        if (cost >= min) { return min; }
+
         const { map, crabs, hallway, hallwaySet, targets, paths } = mapInfo;
         const hash = this.hash(crabs);
-        if (visited.has(hash)) { return currentShortest; }
-        visited.add(hash);
+        const visitedCost = visited.get(hash);
+        if (visitedCost !== undefined && visitedCost <= cost) {
+            return min;
+        }
+        visited.set(hash, cost);
+        if (hash === targetHash) {
+            return cost;
+        }
 
         const crabPositionsSet = new Set(crabs.map(x => x.pos));
 
-        const crabMoveCandidates = crabs.map((crab) => {
-            const { type, pos } = crab;
-            let targetCandidates: number[] = [];
-            if (hallwaySet.has(pos)) {
-                // Move into target room if there is room available and no crab of different type is in the room
-                if (targets[type].every(p => map[p] === EMPTY || map[p] === type)) {
-                    const target = targets[type].filter(p => map[p] === EMPTY)[0]; // fills bottom up
-                    if (target !== undefined) { targetCandidates = [target]; }
+        const crabMoveCandidates = crabs
+            .map((crab) => {
+                const { type, pos } = crab;
+                let targetCandidates: number[] = [];
+                if (hallwaySet.has(pos)) {
+                    // Move into target room if there is room available and no crab of different type is in the room
+                    if (targets[type].every(p => map[p] === EMPTY || map[p] === type)) {
+                        const target = targets[type].filter(p => map[p] === EMPTY)[0]; // fills bottom up
+                        if (target !== undefined) { targetCandidates = [target]; }
+                    }
+                } else {
+                    // Move out of the room to the hallway, if no other crab is blocking it
+                    if (map[crab.pos + this.directions[UP]] === EMPTY && !targets[crab.type].every(p => map[p] === crab.type)) {
+                        targetCandidates = hallway.filter(p => map[p] === EMPTY);
+                    }
                 }
-            } else {
-                // Move out of the room to the hallway, if no other crab is blocking it
-                if (map[crab.pos + this.directions[UP]] === EMPTY) {
-                    targetCandidates = hallway.filter(p => map[p] === EMPTY);
-                }
+
+                return { crab, targetCandidates };
+            })
+            .map(({ crab, targetCandidates }) => {
+                const validCandidates = targetCandidates
+                    .map(candidate => paths[crab.pos][candidate] as number[])
+                    .filter(path => path !== null && path.every(p => !crabPositionsSet.has(p)));
+                return { crab, paths: validCandidates };
+            })
+            .filter(x => x && x.paths.length > 0)
+            .flatMap(({ crab, paths }) => paths.map(path => ({ crab, path })))
+            .sort((a, b) => a.path.length - b.path.length); // TODO use target?
+
+        for (const { crab, path } of crabMoveCandidates) {
+            const targetPos = path[path.length - 1];
+            const posBefore = crab.pos;
+            map[crab.pos] = EMPTY;
+            map[targetPos] = crab.type;
+            crab.pos = targetPos;
+
+            const totalCost = this.findShortest(mapInfo, targetHash, visited, cost + costs[crab.type] * path.length, min);
+            if (totalCost < min) {
+                min = totalCost;
             }
 
-            return { crab, targetCandidates };
-        }).map(({ crab, targetCandidates }) => {
-            const validCandidates = targetCandidates
-                .map(candidate => paths[crab.pos][candidate] as number[])
-                .filter(path => path !== null && path.every(p => !crabPositionsSet.has(p)))
-                .sort((a, b) => a.length - b.length);
-            return { crab, paths: validCandidates };
-        }).filter(x => x && x.paths.length > 0);
+            crab.pos = posBefore;
+            map[targetPos] = EMPTY;
+            map[crab.pos] = crab.type;
+        }
 
-        console.log(crabMoveCandidates.map(c => ({ crab: c.crab, paths: c.paths.map(p => p.join(',')) })));
-
-        return Number.MAX_SAFE_INTEGER;
+        return min;
     }
 
     private hash(crabs: { pos: number; }[]): number {
@@ -91,8 +130,8 @@ export class Day23 extends SolutionBase {
         const map = this.inputLines.flatMap(line => line.padEnd(this.width, ' ').split(''));
 
         const crabs = map.map((type, pos) => ({ type, pos }))
-            .filter(({ type }) => crabRegex.test(type));
-        // .sort((a, b) => a.type.localeCompare(b.type));
+            .filter(({ type }) => crabRegex.test(type))
+            .sort((a, b) => a.type.localeCompare(b.type));
 
         const validPositions = map.map((type, index) => ({ type, index }))
             .filter(({ type, index }) =>
