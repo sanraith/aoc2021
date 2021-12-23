@@ -103,6 +103,6 @@ off x=-93533..-4276,y=-16170..68771,z=-104985..-24507`));
         beforeAll(setupSolution());
 
         it('solves part 1', expectedResult(1, '587785'));
-        xit('solves part 2', expectedResult(2, 'Day22Part2'));
+        it('solves part 2', expectedResult(2, '1167985679908143'));
     });
 });
