@@ -20,6 +20,6 @@ describe('Day23 solution', function () {
         beforeAll(setupSolution());
 
         it('solves part 1', expectedResult(1, '13455'));
-        xit('solves part 2', expectedResult(2, 'Day23Part2'));
+        it('solves part 2', expectedResult(2, '43567'));
     });
 });
