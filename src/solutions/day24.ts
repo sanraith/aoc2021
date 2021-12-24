@@ -1,3 +1,4 @@
+import { cpuUsage } from 'process';
 import { memo } from 'react';
 import { regexMatches } from '../core/helpers';
 import SolutionBase from '../core/solutionBase';
@@ -23,33 +24,28 @@ type ALU = { memory: Memory, commands: Record<string, Command>; };
 export class Day24 extends SolutionBase {
 
     protected part1(): string | number {
+        const alu = this.initALU();
         const program = this.parseInput();
         const sections = program.reduce((a, x) => {
             if (x.kind === 'inp' && a[a.length - 1].length > 0) { a.push([]); }
             a[a.length - 1].push(x);
             return a;
         }, [[]] as Instruction[][]);
-        // console.log(sections);
 
-        const alu = this.initALU();
-        this.trySection(sections[0], alu.memory, alu.commands);
+        const sectionMatches: string[][][] = [];
+        sections.forEach((section, sectionIndex) => {
+            section.forEach((command, commandIndex) => {
+                const { kind, a, b } = command as Operator;
+                [kind, a, b].forEach((x, i) => {
+                    if (!sectionMatches[commandIndex]) { sectionMatches[commandIndex] = []; }
+                    if (!sectionMatches[commandIndex][i]) { sectionMatches[commandIndex][i] = []; }
+                    sectionMatches[commandIndex][i].push(x);
+                });
+            });
+        });
+        console.log();
+        console.log(sectionMatches.map(x => x.map(y => y.map(z => (z ?? '').padStart(3, ' ')).join('|')).join('\n')).join('\n\n'));
 
-        const states = this.trySection(sections[0], alu.memory, alu.commands);
-        const states2 = [];
-        for (const state of states) {
-            states2.push(...this.trySection(sections[1], state, alu.commands));
-        }
-
-        const states2Set = new Set<string>();
-        states2.forEach(x => states2Set.add(x.join(';')));
-
-
-        // console.log(states.length);
-        // console.log(states2.length);
-        console.log(states);
-        console.log(states2);
-        console.log(states2Set.size);
-        // console.log(program);
         this.noSolution();
     }
 
@@ -57,43 +53,19 @@ export class Day24 extends SolutionBase {
         this.noSolution();
     }
 
-    private trySection(section: Instruction[], originalMemory: Memory, commands: Record<string, Command>) {
-        // const statesSet = new Set<string>();
-        const states: Memory[] = [];
-        for (let i = 1; i <= 9; i++) {
-            const memory = originalMemory.slice() as Memory;
-            section.forEach(cmd => {
-                if (cmd.kind === 'inp') {
-                    commands[cmd.kind](memory, cmd.a, i.toString());
-                    return;
-                }
-                commands[cmd.kind](memory, cmd.a, cmd.b);
-            });
-
-            // const state = memory.join(';');
-            // if (!statesSet.has(state)) {
-            states.push(memory);
-            // }
-            // statesSet.add(state);
-        }
-        return states;
-    }
-
     private initALU() {
-        // const m: Memory = Object.fromEntries('wxyz'.split('').map(x => [x, 0]));
-        const m: Memory = [0, 0, 0, 0];//Object.fromEntries('wxyz'.split('').map(x => [x, 0]));
-        const i = (a: string) => a.charCodeAt(0) - 119;
-        const v = (m: Memory, a: string) => m[a.charCodeAt(0) - 119] ?? parseInt(a);
-        const commands = {
-            'inp': (m: Memory, a: string, b: string) => m[i(a)] = v(m, b),
-            'add': (m: Memory, a: string, b: string) => m[i(a)] += v(m, b),
-            'mul': (m: Memory, a: string, b: string) => m[i(a)] *= v(m, b),
-            'div': (m: Memory, a: string, b: string) => m[i(a)] = Math.floor(m[i(a)] / v(m, b)),
-            'mod': (m: Memory, a: string, b: string) => m[i(a)] %= v(m, b),
-            'eql': (m: Memory, a: string, b: string) => m[i(a)] = m[i(a)] === v(m, b) ? 1 : 0
+        const i = (a: string) => a.charCodeAt(0) - 119; // i as index
+        const v = (m: Memory, a: string) => m[a.charCodeAt(0) - 119] ?? parseInt(a); // v as value
+        const commands: Record<string, Command> = {
+            'inp': (m, a, b) => m[i(a)] = v(m, b),
+            'add': (m, a, b) => m[i(a)] += v(m, b),
+            'mul': (m, a, b) => m[i(a)] *= v(m, b),
+            'div': (m, a, b) => m[i(a)] = Math.floor(m[i(a)] / v(m, b)),
+            'mod': (m, a, b) => m[i(a)] %= v(m, b),
+            'eql': (m, a, b) => m[i(a)] = m[i(a)] === v(m, b) ? 1 : 0
         };
 
-        return { memory: m, commands };
+        return { memory: [0, 0, 0, 0], commands, memoryIndex: i, getValue: v };
     }
 
     private parseInput(): Instruction[] {
