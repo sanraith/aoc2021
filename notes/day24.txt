@@ -12,15 +12,15 @@ add|add|add|add|add|add|add|add|add|add|add|add|add|add
 
 mod|mod|mod|mod|mod|mod|mod|mod|mod|mod|mod|mod|mod|mod
   x|  x|  x|  x|  x|  x|  x|  x|  x|  x|  x|  x|  x|  x
-  2|  2|  2|  2|  2|  2|  2|  2|  2|  2|  2|  2|  2|  2
+ 26| 26| 26| 26| 26| 26| 26| 26| 26| 26| 26| 26| 26| 26
 
 div|div|div|div|div|div|div|div|div|div|div|div|div|div
   z|  z|  z|  z|  z|  z|  z|  z|  z|  z|  z|  z|  z|  z
-  1|  1|  1|  2|  1|  2|  2|  1|  1|  1|  2|  2|  2|  2
+  1|  1|  1| 26|  1| 26| 26|  1|  1|  1| 26| 26| 26| 26
 
 add|add|add|add|add|add|add|add|add|add|add|add|add|add
   x|  x|  x|  x|  x|  x|  x|  x|  x|  x|  x|  x|  x|  x
-  1|  1|  1|-13|  1|-13| -7|  1|  1|  1| -4| -9|-13| -9
+ 10| 14| 14|-13| 10|-13| -7| 11| 10| 13| -4| -9|-13| -9
 
 eql|eql|eql|eql|eql|eql|eql|eql|eql|eql|eql|eql|eql|eql
   x|  x|  x|  x|  x|  x|  x|  x|  x|  x|  x|  x|  x|  x
@@ -36,7 +36,7 @@ mul|mul|mul|mul|mul|mul|mul|mul|mul|mul|mul|mul|mul|mul
 
 add|add|add|add|add|add|add|add|add|add|add|add|add|add
   y|  y|  y|  y|  y|  y|  y|  y|  y|  y|  y|  y|  y|  y
-  2|  2|  2|  2|  2|  2|  2|  2|  2|  2|  2|  2|  2|  2
+ 25| 25| 25| 25| 25| 25| 25| 25| 25| 25| 25| 25| 25| 25
 
 mul|mul|mul|mul|mul|mul|mul|mul|mul|mul|mul|mul|mul|mul
   y|  y|  y|  y|  y|  y|  y|  y|  y|  y|  y|  y|  y|  y
@@ -60,7 +60,7 @@ add|add|add|add|add|add|add|add|add|add|add|add|add|add
 
 add|add|add|add|add|add|add|add|add|add|add|add|add|add
   y|  y|  y|  y|  y|  y|  y|  y|  y|  y|  y|  y|  y|  y
-  2|  1|  1|  9|  1|  3|  6|  5|  1|  1|  6|  3|  7|  9
+  2| 13| 13|  9| 15|  3|  6|  5| 16|  1|  6|  3|  7|  9
 
 mul|mul|mul|mul|mul|mul|mul|mul|mul|mul|mul|mul|mul|mul
   y|  y|  y|  y|  y|  y|  y|  y|  y|  y|  y|  y|  y|  y
