@@ -7,7 +7,7 @@ type Instruction = OpInstruction | InputInstruction;
 
 type Memory = [number, number, number, number];
 type Command = (m: Memory, a: string, b: string) => void;
-type ALU = { memory: Memory, commands: Record<string, Command>; };
+type ALU = { memory: Memory; commands: Record<string, Command>; };
 type Hit = { digits: number[]; out: number; in: Set<number>; };
 
 const BRUTE_FORCE_MAX_Z = 1000000;
@@ -34,7 +34,6 @@ export class Day24 extends SolutionBase {
         return smallestModelNumber;
     }
 
-
     private findModelNumber(program: Instruction[], direction: 1 | -1): string[] {
         const [from, until, delta] = direction === 1 ? [1, 10, 1] : [9, 0, -1];
         const sections = program.reduce((a, x) => {
@@ -45,17 +44,17 @@ export class Day24 extends SolutionBase {
         const paramsBySection = this.extractParams(sections);
 
         let targets: Hit[] = [{ digits: [], out: 0, in: new Set([0]) }];
-        let cache: Set<Hit>[] = [new Set([targets[0]])];
+        let lookup: Set<Hit>[] = [new Set([targets[0]])];
 
         for (let sectionIndex = sections.length - 1; sectionIndex >= 0; sectionIndex--) {
             this.updateProgress((sections.length - 1 - sectionIndex) / sections.length);
             const nextTargets: typeof targets = [];
-            const nextCache: typeof cache = [];
+            const nextLookup: typeof lookup = [];
 
             for (let input = from; input !== until; input += delta) {
                 for (let zIn = 0; zIn < BRUTE_FORCE_MAX_Z; zIn++) {
                     const zOut = this.executeCompiledSection(input, zIn, paramsBySection[sectionIndex]);
-                    const hits = cache[zOut];
+                    const hits = lookup[zOut];
                     if (!hits) { continue; }
 
                     for (const hit of hits) {
@@ -71,14 +70,14 @@ export class Day24 extends SolutionBase {
                             nextTarget.in.add(zIn);
                         }
 
-                        if (!nextCache[zIn]) { nextCache[zIn] = new Set(); }
-                        nextCache[zIn].add(nextTarget);
+                        if (!nextLookup[zIn]) { nextLookup[zIn] = new Set(); }
+                        nextLookup[zIn].add(nextTarget);
                     }
                 }
             }
 
             targets = nextTargets;
-            cache = nextCache;
+            lookup = nextLookup;
         }
 
         return targets.map(x => x.digits.join(''));
