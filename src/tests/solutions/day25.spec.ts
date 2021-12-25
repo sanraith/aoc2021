@@ -23,7 +23,7 @@ v.v..>>v.v
     describe('for puzzle input', function () {
         beforeAll(setupSolution());
 
-        xit('solves part 1', expectedResult(1, 'Day25Part1'));
+        it('solves part 1', expectedResult(1, '424'));
         it('solves part 2', expectedResult(2, '*'));
     });
 });
