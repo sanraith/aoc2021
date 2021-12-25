@@ -1,6 +1,4 @@
-import { cpuUsage } from 'process';
 import { memo } from 'react';
-import { regexMatches } from '../core/helpers';
 import SolutionBase from '../core/solutionBase';
 import { solutionInfo } from '../core/solutionInfo';
 
@@ -13,8 +11,7 @@ type Operator = {
     a: string; b: string;
 };
 type Instruction = Operator | InputInstruction;
-// type Memory = Record<string, number>;
-type Memory = [number, number, number, number];//Record<string, number>;
+type Memory = [number, number, number, number];
 type Command = (m: Memory, a: string, b: string) => void;
 type ALU = { memory: Memory, commands: Record<string, Command>; };
 @solutionInfo({
@@ -32,117 +29,147 @@ export class Day24 extends SolutionBase {
             return a;
         }, [[]] as Instruction[][]);
 
-        const map = '999x9xx999xxxx';
-        // const map = 'xxx9x99xxx9999';
-        // const map = '9999999xxxxxxx';
-        const inputs = this.generateInputs(map.split(''));
-
-        // console.log(inputs.map(x => x.join('')).join('\n'));
-
-        inputs.forEach((input, index) => {
-            if (index % 10000 === 0) { this.updateProgress(index / inputs.length); }
-
-            const memory = [0, 0, 0, 0] as Memory;
-            let inputIndex = 0;
-            for (const instruction of program) {
-                if (instruction.kind === 'inp') {
-                    commands[instruction.kind](memory, instruction.a, input[inputIndex++]);
-                } else {
-                    commands[instruction.kind](memory, instruction.a, instruction.b);
-                }
-            }
-
-            if (memory[3] === 0) {
-                console.log();
-                console.log(input.join(''));
-                console.log();
-            }
+        type Hit = { digits: number[]; out: number; in: Set<number>; };
+        type Asd = Hit[];
+        let targets: Asd = [];
+        targets.push({
+            digits: [],
+            out: 0,
+            in: new Set([0])
         });
 
-        // const sectionMatches: string[][][] = [];
-        // sections.forEach((section, sectionIndex) => {
-        //     section.forEach((command, commandIndex) => {
-        //         const { kind, a, b } = command as Operator;
-        //         [kind, a, b].forEach((x, i) => {
-        //             if (!sectionMatches[commandIndex]) { sectionMatches[commandIndex] = []; }
-        //             if (!sectionMatches[commandIndex][i]) { sectionMatches[commandIndex][i] = []; }
-        //             sectionMatches[commandIndex][i].push(x);
-        //         });
-        //     });
-        // });
-        // console.log(sectionMatches);
-        // console.log(sectionMatches.map(x => x.map(y => y.map(z => (z ?? '').padStart(3, ' ')).join('|')).join('\n')).join('\n\n'));
 
+        const params = this.extractParams(sections);
+        // console.log(params);
+        // return '';
 
+        const MAX = 1000000;
 
+        // let targets = new Set([0]);
+        let hitCache: Set<Hit>[] = [];
+        hitCache[0] = new Set([targets[0]]);
+
+        for (let sectionIndex = sections.length - 1; sectionIndex >= 0; sectionIndex--) {
+            const section = sections[sectionIndex];
+            const nextTargets: typeof targets = [];
+            const nextHitCache: typeof hitCache = [];
+            for (let input = 9; input > 0; input--) {
+                const inputStr = input.toString();
+                const inputs = [inputStr];
+
+                for (let zIn = 0; zIn < MAX; zIn++) {
+                    // const zOut = this.execute(zIn, section, commands, inputs);
+                    const zOut = this.test2(input, zIn, params[sectionIndex]);
+
+                    // const hits = targets.filter(x => x.in.has(zOut));
+                    const hits = hitCache[zOut];
+
+                    for (const hit of hits ?? []) {
+                        let hit2 = nextTargets.find(x => x.digits[0] === input && x.out === zOut);
+                        if (!hit2) {
+                            hit2 = {
+                                digits: [input, ...hit.digits],
+                                in: new Set([zIn]),
+                                out: zOut
+                            };
+                            nextTargets.push(hit2);
+                        } else {
+                            hit2.in.add(zIn);
+                        }
+                        if (!nextHitCache[zIn]) { nextHitCache[zIn] = new Set(); }
+                        nextHitCache[zIn].add(hit2);
+                    }
+
+                    // if (targets.has(zOut)) {
+                    //     console.log({ sectionIndex, inputNumber: input, zIn, zOut });
+                    //     nextTargets.add(zIn);
+                    // }
+                }
+            }
+            targets = nextTargets;
+
+            // const duplicates = new Set<string>();
+            // targets = targets.map(item => ({ item, hash: item.out + '|' + [...item.in].join(',') }))
+            //     .filter(x => {
+            //         if (duplicates.has(x.hash)) { return false; }
+            //         duplicates.add(x.hash); return true;
+            //     }).map(x => x.item);
+            console.log(sectionIndex, targets.length);
+            hitCache = nextHitCache;
+            // const results = targets.map(x => x.digits.join('')).sort((a, b) => b.localeCompare(a));
+            // console.log(results);
+
+            // console.log(targets.map(x => ({ digits: x.digits.join(''), in: [...x.in].join(','), out: x.out })));
+
+            // if (sectionIndex < 13) { break; }
+        }
+        // console.log(targets.map(x => x.digits.join('')).join('\n'));
+
+        const results = targets.map(x => x.digits.join('')).sort((a, b) => b.localeCompare(a));
+        console.log(results);
+
+        return results[0];
+
+        // 93997996694192 too low
+        // 93997999296912
+    }
+
+    protected part2(): string | number {
+        //83997999296911 too high
         this.noSolution();
     }
 
-    private generateInputs(map: string[], result: string[] = [], results: string[][] = []): string[][] {
-        if (result.length === map.length) {
-            results.push(result.slice());
-            return results;
+    private extractParams(sections: Instruction[][]): number[][] {
+        const result = [];
+        for (const section of sections) {
+            result.push([4, 5, 15].map(x => parseInt((section[x] as Operator).b)));
         }
 
-        const current = map[result.length];
-        if (current === 'x') {
-            for (let i = 9; i > 0; i--) {
-                result.push(i.toString());
-                this.generateInputs(map, result, results);
-                result.pop();
-            }
-        } else {
-            result.push(current);
-            this.generateInputs(map, result, results);
-            result.pop();
-        }
-
-        return results;
+        return result;
     }
 
-    // private solve(map: string[], sections: Instruction[][], originalMemory: Memory, commands: Record<string, Command>) {
-    //     const mappedInput = map.shift()!;
-    //     const section = sections.shift()!;
-    //     if (mappedInput === 'x') {
-    //         for (let i = 9; i > 0; i--) {
-    //             const input = i.toString();
-    //             const memory = originalMemory.slice() as Memory;
-    //             this.executeSection(input, section, memory, commands);
-    //             if (sections.length === 0 && memory[0] === 0) {
-    //                 return;
-    //             }
-    //         }
-    //     } else {
-    //         this.executeSection(mappedInput, section, originalMemory, commands);
-    //     }
 
-    //     map.unshift(mappedInput);
-    //     sections.unshift(section);
-    // }
+    private execute(z: number, section: Instruction[], commands: Record<string, Command>, input: string[]) {
+        const memory = [0, 0, 0, z] as Memory;
+        let inputIndex = 0;
+        for (const instruction of section) {
+            if (instruction.kind === 'inp') {
+                commands[instruction.kind](memory, instruction.a, input[inputIndex++]);
+            } else {
+                commands[instruction.kind](memory, instruction.a, instruction.b);
+            }
+        }
+        return memory[3];
+    }
 
-    // private executeSection(input: string, section: Instruction[], memory: Memory, commands: Record<string, Command>) {
-
-    // }
-
-    private test(input: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9) {
-        let [wInput, x, y, z] = [0, 0, 0, 0];
-        wInput = input;
+    private test2(w: number, zIn: number, params: number[]) {
+        const [a, b, c] = params;
+        let [x, y, z] = [0, 0, zIn];
         x = z % 26;
-        x += 10;                  //  10| 14| 14|-13| 10|-13| -7| 11| 10| 13| -4| -9|-13| -9
-        x = x !== wInput ? 1 : 0; //   1|  1|  1|  ?|  1|  ?|  ?|  1|  1|  1|  ?|  ?|  ?|  ?
-
-        z = Math.floor(z / 1);    //   1|  1|  1| 26|  1| 26| 26|  1|  1|  1| 26| 26| 26| 26
+        z = Math.floor(z / a);   //   1|  1|  1| 26|  1| 26| 26|  1|  1|  1| 26| 26| 26| 26
+        x += b;                  //  10| 14| 14|-13| 10|-13| -7| 11| 10| 13| -4| -9|-13| -9
+        x = x !== w ? 1 : 0;     //   1|  1|  1|  ?|  1|  ?|  ?|  1|  1|  1|  ?|  ?|  ?|  ?
         z *= 25 * x + 1;
-        y = (wInput + 2) * x;     //   2| 13| 13|  9| 15|  3|  6|  5| 16|  1|  6|  3|  7|  9
+        y = (w + c) * x;         //   2| 13| 13|  9| 15|  3|  6|  5| 16|  1|  6|  3|  7|  9
         z += y;
 
-        // if (x === 0) {
-        //     z2 = z + 1;
-        // } else {
-        //     
-        // }
+        return z;
+    }
 
-        // z2 = (z mod 26 + a) / b * 25 + 1 + 
+    private test(input: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9, m = [0, 0, 0, 0]) {
+        let [wInput, x, y, z] = m;
+        wInput = input;
+        x = z % 26;
+        x += -9;                  //  10| 14| 14|-13| 10|-13| -7| 11| 10| 13| -4| -9|-13| -9
+        x = x !== wInput ? 1 : 0; //   1|  1|  1|  ?|  1|  ?|  ?|  1|  1|  1|  ?|  ?|  ?|  ?
+
+        z = Math.floor(z / 26);   //   1|  1|  1| 26|  1| 26| 26|  1|  1|  1| 26| 26| 26| 26
+        z *= 25 * x + 1;
+        y = (wInput + 9) * x;     //   2| 13| 13|  9| 15|  3|  6|  5| 16|  1|  6|  3|  7|  9
+        z += y;
+
+        // console.log({ x, y, z });
+        return z;
     }
 
     // wInput = input;
@@ -193,10 +220,6 @@ export class Day24 extends SolutionBase {
     // y += 2;
     // y *= x;
     // z += y;
-
-    protected part2(): string | number {
-        this.noSolution();
-    }
 
     private initALU() {
         const i = (a: string) => a.charCodeAt(0) - 119; // i as index

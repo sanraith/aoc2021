@@ -11,7 +11,8 @@
                 "run-script",
                 "start",
                 "--",
-                "--last"
+                "-d",
+                "24"
             ],
             "runtimeExecutable": "npm",
             "skipFiles": [

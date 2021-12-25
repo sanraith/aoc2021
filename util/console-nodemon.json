@@ -8,5 +8,5 @@
         "src/calendar"
     ],
     "exec": "set NODE_ENV=development && ts-node -C typescript -P util/tsconfig.console.json src/console/start.ts",
-    "args": ["--last"]
+    "args": ["-d 24"]
 }
